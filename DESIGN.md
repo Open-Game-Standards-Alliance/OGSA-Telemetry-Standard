@@ -64,6 +64,7 @@ The standard therefore defines two frames with separate cadences:
 |---|---|---|
 | `DiscoveryFrame` | once per session, re-sent on change | game name, session anchor, environment, object descriptors, drive-point descriptors (suspension spec rides WheelSpec), channel descriptors (id, name, unit, range, description) |
 | `MotionFrame` | ~60 Hz | timestamp, per-object pose (position, orientation quaternion), optional velocity/acceleration, drive-point state (typed union), channel values (id + typed value) |
+| `EventFrame` | on demand | discrete stimuli for haptics/cueing: id, name, intensity, duration, optional body-frame direction; redundancy by short replay + id dedup (CONVENTIONS C-10) |
 
 This is the same split as motorsport CAN + DBC files: declare the signal
 dictionary once, stream bare values. Senders key everything by `UInt16` ids
@@ -125,6 +126,25 @@ diameter/blades) in a union; the motion frame carries the matching dynamic state
 
 New drive-point variants and new descriptor fields can be added in v1.x without
 breaking deployed receivers (see §7).
+
+### Consumer classes
+
+The wire shape obligates consumers to very little, so non-motion devices are
+first-class consumers alongside motion rigs:
+
+- **Motion rigs / cueing** — pose core + drive points (the original shape).
+- **Haptics (vests, transducers)** — pose core + channels; `EventFrame` for
+  discrete stimuli (impacts, gunfire); drive points ignored.
+- **FFB middleware** — torque/deflection channels the game publishes
+  (`ctrl.ffb.torque`); still read-only telemetry, never commands to the game.
+- **Dashboards / loggers / tooling** — channels + session values.
+
+A minimal sender is one object (name + position + orientation) plus whatever
+channels/events it has — drive points are optional. Creature senders (horse,
+dragon) use the same core: `ObjectType.creature`, legs via `leg`, wings via
+`wing` (also ornithopters), everything else `generic` + labels. Undulating
+bodies (snake, eel) have no per-segment drive points; spine detail rides
+channels if a game ever exposes it.
 
 ## 5. Key decisions and rationale
 

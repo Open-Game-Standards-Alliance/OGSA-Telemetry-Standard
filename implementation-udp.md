@@ -11,11 +11,27 @@ Each UDP datagram is an 8-byte envelope followed by one Cap'n Proto message:
 | Offset | Size | Field |
 |---|---|---|
 | 0 | 4 | Magic `OMT1` — protocol id + wire-format version |
-| 4 | 1 | Frame type: `0x00` = `DiscoveryFrame`, `0x01` = `MotionFrame` |
+| 4 | 1 | Frame type: `0x00` = `DiscoveryFrame`, `0x01` = `MotionFrame`, `0x02` = `EventFrame` |
 | 5 | 3 | Reserved — send 0, ignore on receive |
 | 8 | … | Cap'n Proto message (already word-aligned — readable in place) |
 
 Receivers check the magic and silently skip foreign packets (the multicast group may be shared). Datagrams stay well under a UDP MTU (see [implementation-capnproto.md](implementation-capnproto.md)).
+
+## Event frames
+
+`EventFrame`s are sent on demand (irregular cadence, often bursty) and
+carry discrete stimuli — impacts, gunfire, footsteps — for haptic and
+cueing consumers (CONVENTIONS C-10). Because the transport is lossy and
+an event must not be silently missed, senders SHOULD re-carry recent
+events in subsequent `EventFrame`s for ~100 ms (or until the next frame
+if quieter); receivers MUST dedup by the session-monotonic `id`. Events
+are self-contained (intensity, duration, optional body-frame direction),
+so a late-joined receiver misses only events from before it joined —
+by design, as with motion.
+
+Event frames are auxiliary: they do not count as the heartbeat and do
+not participate in liveness detection; motion frames remain the sole
+liveness signal.
 
 ## Default endpoint
 

@@ -90,8 +90,27 @@ These families are annex candidates once naming stabilizes across ≥2 games
 | `aids.tcs` | boolean | — | Traction control currently active |
 | `aids.esp` | boolean | — | Stability control currently active |
 | `fuel.level` | number | — | Remaining fuel/energy fraction, 0..1 (C-3) |
-| `fuel.rate` | number | `l/h` | Current consumption rate |
+| `fuel.rate` | number | `m3/s` | Current consumption rate (L/h ÷ 3.6e6) |
 
 Deliberately out of scope for now: race state (`race.lap`,
 `race.position`, lap timing) — recurring, but domain-specific enough to go
 through the ratification process as a real first test of it.
+
+## Event names (unratified — same process as channels)
+
+`EventFrame` stimuli (CONVENTIONS C-10) use dot-namespaced names, ratified
+by the same ≥2-game bar as channels. Candidates seen in the wild so far
+(none yet two-game, none ratified):
+
+| Name | Notes |
+|---|---|
+| `body.impact` | collision, direction + intensity |
+| `weapon.fire` | the player's own weapon firing |
+| `weapon.hit` | being hit; direction points toward the shooter |
+| `explosion` | high-intensity, often sustained |
+| `surface.scrape` | duration > 0 sustain window |
+| `footstep.stomp` | heavy footfall (also derivable from `LegState.contact`) |
+
+Senders facing a concept not listed: name freely, exactly as with
+channels (`mech.stomp`, `space.decompress`). Reuse only exact ratified
+names.

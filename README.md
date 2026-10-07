@@ -26,6 +26,14 @@ field comment and channel family cites its clauses. Is positive steering
 left or right, radians or degrees, handwheel or road wheel: the answer is
 one lookup, not per-field folklore.
 
+### Events and non-motion consumers
+
+An `EventFrame` carries discrete stimuli (impacts, gunfire, footsteps) for
+haptic vests, transducers, and cueing effects, with redundancy over the
+lossy transport via short replay + id dedup (CONVENTIONS C-10). Motion
+rigs, haptics, FFB middleware, dashboards, and loggers are all first-class
+consumers — see DESIGN.md, Consumer classes.
+
 ### Data format
 
 We propose using Cap'n Proto as the data format. Cap’n Proto is a zero-copy, binary serialization format optimized for speed and efficiency, making it an excellent choice for sending motion telemetry data over UDP. It avoids encoding/decoding overhead by using a memory-aligned layout, and it supports optional fields and nested structures efficiently.

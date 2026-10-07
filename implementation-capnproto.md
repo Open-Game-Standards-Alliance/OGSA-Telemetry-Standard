@@ -243,6 +243,7 @@ The equivalent self-describing-per-frame JSON would be several times larger on e
 
 - **Adding fields or variants (v1.x):** receivers built against an older schema skip unknown fields and unknown union discriminants silently — no coordination needed.
 - **Optional data:** optionality is carried by union discriminants (`noDynamics`/`core`/`noRange`/`noSuspension`/…), never by null struct fields — inline struct fields are not nullable in Cap'n Proto. Pointer fields (text, lists, union struct members like `range`, `suspension`) do have `hasX()` accessors; check them or the discriminant before use.
+- **Unset unions:** a sender that sets no variant leaves the discriminant **undefined** (distinct from explicitly setting the `Void` default). Receivers MUST treat an undefined discriminant exactly like the variant's `Void` default (`noDirection` ≡ omnidirectional, `noForce` ≡ force not available) — never as an error.
 - **Adding channels or drive points:** change the `DiscoveryFrame` and re-send it; receivers key by id and simply see new entries.
 - **Removing or renumbering ids:** never mid-session — ids are the contract between discovery and motion frames.
 

@@ -46,7 +46,8 @@ z)**. In this left-handed frame, a positive rotation about an axis appears
 clockwise when viewed looking along that axis. Every angular quantity on
 the wire (angular velocity, Euler-derived angles, steering angles) uses
 this same sense — positive steering turns the same direction as +yaw:
-**positive = right**.
+**positive = right**. Symmetric-pair deflections (wing flap) are positive
+= tip up on either side.
 
 ## C-5 Control inputs
 
@@ -90,3 +91,15 @@ rather than emitting absolute planetary coordinates. Geographic lat/lon
 rides channels, where Float32 gives ~1 m precision at Earth magnitudes —
 display-grade, not navigation-grade; senders needing more split degrees
 from fractional degrees.
+
+## C-10 Events
+
+`EventFrame` carries discrete stimuli (impacts, gunfire, footsteps) for
+haptic and cueing consumers. Each event carries a session-monotonic `id`;
+the transport is lossy, so senders SHOULD re-carry recent events (~100 ms
+window) and receivers MUST dedup by id. `intensity` is 0..1 normalized
+(C-3). `duration` is seconds: 0 = momentary impulse, >0 = a sustain
+window the consumer may render continuously. `direction` is optional,
+in the body frame (C-1) of the associated object, and points **toward the
+source** of the stimulus — a hit from the left has −x. Event names use
+dot-namespaced strings ratified like channel names (CHANNELS.md).

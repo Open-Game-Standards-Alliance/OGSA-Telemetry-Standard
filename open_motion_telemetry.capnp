@@ -52,7 +52,9 @@ enum ObjectType {
   spacecraft @3;
   humanoid   @4;   # on-foot player or NPC
   camera     @5;   # spectator / free camera
-  other      @6;   # escape hatch — never force a wrong class
+  creature   @6;   # horse, dragon, alien — pose core is domain-agnostic;
+                   # taxonomy detail rides typeLabel ("dragon", "warhorse")
+  other      @7;   # escape hatch — never force a wrong class
 }
 
 enum ContactMedium {
@@ -170,8 +172,14 @@ struct DrivePointDescriptor {
     jet @5 :Void;
     sail @6 :Void;
     leg @7 :Void;
-    generic @8 :GenericSpec;         # unspecified drive; state carried by GenericState
+    wing @8 :WingSpec;              # also ornithopters / control-wing aircraft
+    generic @9 :GenericSpec;         # unspecified drive; state carried by GenericState
   }
+}
+
+struct WingSpec {
+  flapRange @0 :Range;            # flap angle limits, rad
+  span @1 :Float32;               # semi-span of this wing, meters; 0 = unspecified
 }
 
 struct WheelSpec {
@@ -250,7 +258,8 @@ struct DrivePoint {
     jet @3 :JetState;
     sail @4 :SailState;
     leg @5 :LegState;
-    generic @6 :GenericState;
+    wing @6 :WingState;
+    generic @7 :GenericState;
   }
 }
 
@@ -326,6 +335,15 @@ struct GenericState {
   }
 }
 
+struct WingState {
+  flapAngle @0 :Float32;          # rad; positive = tip up (symmetric-pair
+                                  # convention — see CONVENTIONS C-4)
+  union {
+    noForce @1 :Void;              # default: not available
+    force @2 :Vector3;             # world space, N (mirrors LegState)
+  }
+}
+
 struct ChannelValue {
   id @0 :UInt16;                   # matches ChannelDescriptor.id
   union {
@@ -333,4 +351,30 @@ struct ChannelValue {
     boolean @2 :Bool;
     text @3 :Text;                 # rare (labels, mode names); avoid per-frame
   }
+}
+
+# ---------------------------------------------------------------------------
+# Event frame (irregular cadence)
+# ---------------------------------------------------------------------------
+
+struct Event {
+  id @0 :UInt32;                   # session-monotonic; receivers dedup and
+                                   # detect gaps (lossy transport — see
+                                   # implementation-udp.md replay guidance)
+  name @1 :Text;                   # dot-namespaced, e.g. "weapon.fire";
+                                   # naming/ratification like channel names
+  intensity @2 :Float32;           # 0..1 normalized (CONVENTIONS C-3)
+  duration @3 :Float32;            # s; 0 = momentary impulse, >0 = sustain window
+  union {
+    noDirection @4 :Void;          # default: omnidirectional
+    direction @5 :Vector3;         # body frame of `object`, pointing toward
+                                   # the source of the stimulus (CONVENTIONS C-10)
+  }
+  object @6 :Text;                 # "" = primary object
+}
+
+struct EventFrame {
+  timestamp @0 :Float64;           # seconds since session anchor (C-8)
+  events @1 :List(Event);          # SHOULD re-carry recent events for redundancy
+                                   # until ~100 ms old; receivers dedup by id
 }
