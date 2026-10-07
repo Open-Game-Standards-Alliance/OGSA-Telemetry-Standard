@@ -34,7 +34,7 @@ Cadence: **stream** = per-tick; **session** = discovery `values`.
 ### Controls & FFB (stream)
 | Channel | irsdk | Notes |
 |---|---|---|
-| `ctrl.steer` (rad) | `SteeringWheelAngle` | clamp to `SteeringWheelAngleMax` |
+| `ctrl.steering.angle` (rad) | `SteeringWheelAngle` | + = right (CONVENTIONS C-4); clamp to `SteeringWheelAngleMax`; sign capture-verify † |
 | `ctrl.throttle` / `ctrl.brake` / `ctrl.clutch` (0..1) | `Throttle`/`Brake`/`Clutch` | `*Raw` are pedal axes; pick one, declare which |
 | `ctrl.handbrake` | `HandBrake` | |
 | `ctrl.ffb.torque` (N·m)† | `SteeringWheelTorque` | for FFB middleware |

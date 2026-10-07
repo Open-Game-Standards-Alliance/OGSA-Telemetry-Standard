@@ -6,6 +6,13 @@ impact. It ratifies well-known channel names **with required units** so
 receivers can auto-map telemetry across games without per-game
 configuration.
 
+## Units
+
+Channel units follow [CONVENTIONS.md](CONVENTIONS.md) C-3: SI base units
+plus a closed whitelist of declared exceptions — `degC` (temperature),
+`rpm` (rotational speed). Angles are always `rad`. Never degrees,
+`km/h`, `kt`, `bar`, or `psi`; senders convert at the source.
+
 ## For senders
 
 - If a channel's concept matches a ratified name below, use the ratified
@@ -31,9 +38,17 @@ free-form until a specific entry is ratified:
 
 - `ctrl.*` — control-surface / control-input deflections: `ctrl.aileron`,
   `ctrl.elevator`, `ctrl.rudder` (−1..1), `ctrl.flaps`, `ctrl.spoilers`
-  (0..1), `gear.down` (boolean).
+  (0..1), `gear.down` (boolean). Signs follow CONVENTIONS C-5: a positive
+  input produces the positive rotation about the matching body axis
+  (`ctrl.elevator` + = nose-up, `ctrl.rudder` + = nose-right,
+  `ctrl.aileron` + = roll right-down, `ctrl.steering.angle` + = right;
+  the last is the handwheel — the road wheel's own angle is schema
+  `steerAngle`, C-6).
 - `wind.*` — per-tick wind: `wind.trueSpeed` / `wind.apparentSpeed` (m/s),
-  `wind.trueDirection` / `wind.apparentAngle` (rad, world/object frame).
+  `wind.trueDirection` / `wind.apparentAngle` (rad). Direction follows the
+  meteorological **from** convention in the world frame; apparent angle is
+  relative to the nose, positive = from the right (CONVENTIONS C-7);
+  vector channels `wind.x/y/z` point toward where the air moves.
   Wind changes per gust, so it rides motion-frame channels — never the
   discovery-static `environment`.
 - `air.*` — air data: `air.trueAirspeed`, `air.indicatedAirspeed` (m/s),
@@ -57,16 +72,16 @@ These families are annex candidates once naming stabilizes across ≥2 games
 | Name | Type | Unit | Description |
 |---|---|---|---|
 | `engine.rpm` | number | `rpm` | Crankshaft / shaft revolutions per minute |
-| `engine.throttle` | number | `%` | Driver throttle input, 0–100 |
+| `engine.throttle` | number | — | Driver throttle input, 0..1 (C-3) |
 | `engine.torque` | number | `Nm` | Current engine output torque |
 | `engine.temperature` | number | `degC` | Coolant / motor temperature |
 | `engine.running` | boolean | — | Engine/motor currently producing power |
 | `transmission.gear` | number | — | −1 reverse, 0 neutral, 1…n forward |
 | `vehicle.speed` | number | `m/s` | Speed over ground (display conversions are the receiver's job) |
-| `brakes.pedal` | number | `%` | Driver brake input, 0–100 |
+| `brakes.pedal` | number | — | Driver brake input, 0..1 (C-3) |
 | `brakes.pressure` | number | `Pa` | Master cylinder brake pressure |
-| `steering.input` | number | `%` | Driver steering input, −100 full left … +100 full right |
-| `input.clutch` | number | `%` | Driver clutch input, 0–100 |
+| `ctrl.steering.angle` | number | `rad` | Handwheel angle, + = right (C-4); the road wheel's own angle is schema `steerAngle` (C-6) |
+| `input.clutch` | number | — | Driver clutch input, 0..1 (C-3) |
 | `lights.headlights` | boolean | — | Headlights on |
 | `lights.highBeam` | boolean | — | High beams on |
 | `lights.wipers` | boolean | — | Wipers active |
@@ -74,7 +89,7 @@ These families are annex candidates once naming stabilizes across ≥2 games
 | `aids.abs` | boolean | — | Anti-lock braking currently active |
 | `aids.tcs` | boolean | — | Traction control currently active |
 | `aids.esp` | boolean | — | Stability control currently active |
-| `fuel.level` | number | `%` | Remaining fuel/energy, 0–100 |
+| `fuel.level` | number | — | Remaining fuel/energy fraction, 0..1 (C-3) |
 | `fuel.rate` | number | `l/h` | Current consumption rate |
 
 Deliberately out of scope for now: race state (`race.lap`,

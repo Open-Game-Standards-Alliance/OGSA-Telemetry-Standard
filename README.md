@@ -17,6 +17,15 @@ free for anyone to implement. If it is useful to you, consider
 
 ## Implementation
 
+### Conventions
+
+Frames, quaternion policy, units (SI plus a closed whitelist), rotation
+signs, control-input signs, value identity, wind convention, timestamps,
+and precision are defined once in [CONVENTIONS.md](CONVENTIONS.md) — every
+field comment and channel family cites its clauses. Is positive steering
+left or right, radians or degrees, handwheel or road wheel: the answer is
+one lookup, not per-field folklore.
+
 ### Data format
 
 We propose using Cap'n Proto as the data format. Cap’n Proto is a zero-copy, binary serialization format optimized for speed and efficiency, making it an excellent choice for sending motion telemetry data over UDP. It avoids encoding/decoding overhead by using a memory-aligned layout, and it supports optional fields and nested structures efficiently.

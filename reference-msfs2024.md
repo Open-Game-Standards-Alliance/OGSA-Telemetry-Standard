@@ -19,7 +19,7 @@ Source variables: the MSFS 2024 SDK SimVar set (1,354 documented names).
 | `bodyDynamics.angularVelocity` | `ROTATION_VELOCITY_BODY_X/Y/Z` | rad/s, direct |
 | `Environment.airDensity/temperature/pressure/gravity` | `AMBIENT DENSITY/TEMPERATURE/PRESSURE`, planet gravity | SI |
 | `namedPoints` | `STRUCT_EYEPOINT_*`, `STRUCT_ENGINE_POSITION` | object-local m |
-| wheel drive points (`rpm`, `slip`, `contact`, `steerAngle`) | `CENTER/LEFT/RIGHT WHEEL RPM`, `GEAR SKIDDING FACTOR`, `SIM ON GROUND` + surface, `GEAR_*_STEER_ANGLE` | direct |
+| wheel drive points (`rpm`, `slip`, `contact`, `steerAngle`) | `CENTER/LEFT/RIGHT WHEEL RPM`, `GEAR SKIDDING FACTOR`, `SIM ON GROUND` + surface, `GEAR_*_STEER_ANGLE` | steerAngle + = right per CONVENTIONS C-4 — sign-verify against the sim; unit is rad (watch the DEGREES-named neighbours) |
 | jet drive point (`throttle`) | `GENERAL ENG THROTTLE LEVER POSITION` | 0..1 direct |
 
 Dynamics rule: emit the body set (`bodyDynamics`) — the fullest native
@@ -49,9 +49,9 @@ current value in `ObjectDescriptor.values` (discovery, re-sent on change).
 | `air.alphaX/Y/Z` (rad/s²) | `ROTATION_ACCELERATION_BODY_X/Y/Z` — lever-arm α for consumer corrections |
 
 ### Wind / ambient (session, or stream when dynamic weather)
-| Channel | SimVar |
-|---|---|
-| `wind.speed` (m/s), `wind.direction` (rad), `wind.x/y/z` | `AMBIENT WIND VELOCITY/DIRECTION/X/Y/Z` |
+| Channel | SimVar | Notes |
+|---|---|---|
+| `wind.speed` (m/s), `wind.direction` (rad), `wind.x/y/z` | `AMBIENT WIND VELOCITY/DIRECTION/X/Y/Z` | direction is the **from** convention (CONVENTIONS C-7); MSFS reports degrees → ×π/180; vector components point toward |
 | `env.visibility` (m), `env.precipRate`, `env.inCloud` (bool) | `AMBIENT VISIBILITY/PRECIP RATE/IN CLOUD` |
 
 ### Controls (stream)

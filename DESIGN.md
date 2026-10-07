@@ -17,24 +17,20 @@ The schema serves the LTS requirements:
 - Supports multiple local clients (dashboards, motion rigs, haptics, loggers)
   without extra ports or proxying — via multicast.
 
-Coordinate system (normative):
+Coordinate system and wire conventions (normative) — defined once in
+[CONVENTIONS.md](CONVENTIONS.md) (frames, quaternion policy, units + the
+declared-exception whitelist, rotation signs, control-input signs, value
+identity, wind convention, timestamps, precision). Design rationale:
 
-- **World frame** — left-handed, +Z forward, +Y up, +X right, meters,
-  seconds.
-- **Body frame** — the world frame rotated by the object's quaternion:
-  x +right (sway), y +up (heave), z +forward (surge); rotations x +nose-up
-  pitch, y +nose-right yaw, z +roll right-down.
-- **Orientation** — unit quaternion (senders normalize; receivers may
-  renormalize defensively); either sign is the same rotation; rotates
-  world axes into body axes.
-- **Object-local frame** — one sender-chosen origin per object (typically
-  the CG), used by drive-point offsets and named points (§3).
-- **Precision** — all wire floats are Float32. World `position` assumes a
-  session-stable local origin: large-world senders (globe-spanning flight
-  sims) re-origin on teleport/session start rather than emitting absolute
-  planetary coordinates. Geographic lat/lon rides channels, where Float32
-  gives ~1 m precision at Earth magnitudes — display-grade, not navigation-
-  grade; senders needing more split degrees from fractional degrees.
+- **Left-handed world** (Z-forward, Y-up) — engine-native for
+  Unity/DirectX/Unreal, the largest sender population; consumers are
+  quaternion-native and take the frame as declared.
+- **One closed conventions layer** — every angular quantity shares one
+  sign sense (positive rotation = positive yaw direction: steering + =
+  right), every unit is SI or on a short whitelist (°C, rpm), and what a
+  value measures is fixed by where it lives (driver inputs are `ctrl.*`
+  channels; `steerAngle` is the road wheel, not the handwheel).
+  Per-field comments cite clause numbers (e.g. `C-3`, `C-4`).
 
 ## Non-goals (current scope)
 
@@ -224,8 +220,8 @@ breaking deployed receivers (see §7).
   optionals bundle into one all-or-neither sub-struct (`WheelExtended`,
   `PropellerExtended`). Senders must not claim a variant with sentinel
   values; zeros inside measured fields are real readings. Recorded
-  conventions: steer angle positive = left (ISO); tyre wear 1 = new; tyre
-  temp carcass/average degC; `SuspensionSpec.damping` 0 = unspecified
+  conventions live in [CONVENTIONS.md](CONVENTIONS.md): tyre wear 1 = new;
+  tyre temp carcass/average °C; `SuspensionSpec.damping` 0 = unspecified
   (receiver approximates load force from stiffness otherwise).
 - **`GenericState` carries force.** Generic drive points are multi-instance
   by design (four hover fans = four points), and per-point physical values

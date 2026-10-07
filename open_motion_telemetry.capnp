@@ -70,10 +70,10 @@ enum ContactMedium {
 
 struct Environment {
   # Ambient conditions of the simulation medium. Sent in discovery; may be
-  # re-sent on change (e.g. entering water). Units in comments.
+  # re-sent on change (e.g. entering water). Units per CONVENTIONS C-3.
   airDensity @0 :Float32;   # kg/m^3
-  temperature @1 :Float32;  # °C
-  pressure @2 :Float32;     # bar
+  temperature @1 :Float32;  # °C (declared exception, C-3)
+  pressure @2 :Float32;     # Pa
   gravity @3 :Float32;      # m/s^2
   medium @4 :ContactMedium; # dominant surrounding medium
 }
@@ -137,7 +137,7 @@ struct ChannelDescriptor {
   # game can expose any datapoint as a well-documented, typed channel.
   id @0 :UInt16;
   name @1 :Text;                   # stable identifier, e.g. "engine.rpm"
-  unit @2 :Text;                   # e.g. "rpm", "m/s", "bar", "" = unitless
+  unit @2 :Text;                   # per CONVENTIONS C-3, e.g. "rpm", "m/s", "degC", "" = unitless
   union {
     # Range is optional: inline struct fields are not nullable, so the
     # discriminant carries the optionality.
@@ -255,7 +255,7 @@ struct DrivePoint {
 }
 
 struct WheelState {
-  rpm @0 :Float32;
+  rpm @0 :Float32;                # rpm (declared exception, C-3)
   torque @1 :Float32;              # Nm
   brakePressure @2 :Float32;       # Pa
   slip @3 :Float32;                # slip ratio, 0 = rolling
@@ -271,17 +271,17 @@ struct WheelState {
 }
 
 struct WheelExtended {
-  steerAngle @0 :Float32;          # radians; positive = left (ISO convention)
+  steerAngle @0 :Float32;          # rad; positive = right, same sense as +yaw (C-4)
   loadForce @1 :Float32;           # N along suspension axis, measured (incl. damping)
   damperVelocity @2 :Float32;      # m/s compression rate (iRacing shockVel, Dirt 4
                                    # suspension_velocity — ≥2-game evidence)
   tyrePressure @3 :Float32;        # Pa
-  tyreTemp @4 :Float32;            # degC, carcass/average (zone temps → channels)
+  tyreTemp @4 :Float32;            # °C (C-3), carcass/average (zone temps → channels)
   tyreWear @5 :Float32;            # 0..1 fraction remaining (1 = new)
 }
 
 struct PropellerState {
-  rpm @0 :Float32;
+  rpm @0 :Float32;                # rpm (declared exception, C-3)
   union {
     core @1 :Void;                  # default: rpm only
     extended @2 :PropellerExtended; # pitch/thrust when measured

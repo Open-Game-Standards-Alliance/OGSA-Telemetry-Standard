@@ -69,7 +69,7 @@ kj::Array<capnp::word> buildDiscovery() {
     Environment::Builder env = d.initEnvironment();
     env.setAirDensity(1.225f);   // kg/m^3
     env.setTemperature(20.0f);   // °C
-    env.setPressure(1.01325f);   // bar
+    env.setPressure(101325.0f);   // Pa
     env.setGravity(9.81f);       // m/s^2
     env.setMedium(ContactMedium::ASPHALT);
 
