@@ -52,13 +52,19 @@ plus a semantic manifest. Two checks, either or both:
 
 All corpus floats are float32-exact, so comparisons need no epsilon.
 
-Instant sanity check with the official tool (strip the 8-byte envelope
-first):
+Instant sanity check with the official tool. Note the `.hex` files are
+text: the 8-byte envelope is 16 hex characters, so strip from character
+17 (not byte 9):
 
 ```bash
-tail -c +9 conformance/vectors/motion-pose.hex | xxd -r -p \
-  | capnp decode -s ogsa_telemetry.capnp MotionFrame
+tail -c +17 conformance/vectors/motion-pose.hex | xxd -r -p \
+  | capnp decode ogsa_telemetry.capnp MotionFrame
 ```
+
+(No `capnp` CLI handy? The same check in Python: `pip install pycapnp`,
+then `capnp.load("ogsa_telemetry.capnp").MotionFrame.from_bytes(
+bytes.fromhex(open("conformance/vectors/motion-pose.hex").read().strip()[16:]))`
+— use it as a context manager.)
 
 ## Fastest paths by engine
 
