@@ -1,6 +1,6 @@
 # OGSA-TS Schema v1: Two-Layer Design
 
-Status: current (v1.0). Authoritative schema: `open_motion_telemetry.capnp`.
+Status: current (v1.0). Authoritative schema: `ogsa_telemetry.capnp`.
 
 ## 1. Goals
 

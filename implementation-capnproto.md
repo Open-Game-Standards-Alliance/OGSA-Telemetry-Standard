@@ -6,7 +6,7 @@ For the design behind the schema — the two frames and why metadata and samples
 
 ## The schema
 
-The schema lives in [`open_motion_telemetry.capnp`](open_motion_telemetry.capnp) and defines two root messages:
+The schema lives in [`ogsa_telemetry.capnp`](ogsa_telemetry.capnp) and defines two root messages:
 
 - **`DiscoveryFrame`** — sent once per session and re-sent whenever anything it describes changes. Declares the game, session anchor, environment, and per object: drive-point descriptors (geometry, suspension) and channel descriptors (id, name, unit, range).
 - **`MotionFrame`** — sent at the telemetry rate (~60 Hz). Carries the pose core plus drive-point state and channel values, all keyed by the ids declared in discovery.
@@ -14,10 +14,10 @@ The schema lives in [`open_motion_telemetry.capnp`](open_motion_telemetry.capnp)
 Compile it for C++:
 
 ```bash
-capnp compile -oc++ open_motion_telemetry.capnp
+capnp compile -oc++ ogsa_telemetry.capnp
 ```
 
-This generates `open_motion_telemetry.capnp.h` and `open_motion_telemetry.c++`.
+This generates `ogsa_telemetry.capnp.h` and `ogsa_telemetry.c++`.
 
 ## The minimal sender
 
@@ -55,7 +55,7 @@ discovery and keyed by id, so they never complicate the motion tick.
 The discovery frame is where a game declares everything about its telemetry: what objects it streams, what drive points they have, and what channels exist. This example declares a racing-style player car with four wheels and three channels:
 
 ```cpp
-#include "open_motion_telemetry.capnp.h"
+#include "ogsa_telemetry.capnp.h"
 #include <capnp/message.h>
 
 kj::Array<capnp::word> buildDiscovery() {
@@ -190,7 +190,7 @@ kj::Array<capnp::word> buildMotion(double timestampSeconds) {
 Deserialize with `FlatArrayMessageReader`. The frame type is identified by the transport envelope (a frame-type byte in the UDP header — see [implementation-udp.md](implementation-udp.md)), so a receiver knows which root type to expect:
 
 ```cpp
-#include "open_motion_telemetry.capnp.h"
+#include "ogsa_telemetry.capnp.h"
 #include <capnp/serialize.h>
 
 void onDiscovery(kj::ArrayPtr<const capnp::word> words) {

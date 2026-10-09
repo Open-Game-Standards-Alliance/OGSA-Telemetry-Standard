@@ -114,7 +114,7 @@ The schema separates static metadata from per-frame samples: a low-rate
 declarations with type/unit/range — the standard's extension mechanism) and a
 high-rate `MotionFrame` (the minimal pose core plus typed values keyed by
 discovery ids). See [DESIGN.md](DESIGN.md),
-[`open_motion_telemetry.capnp`](open_motion_telemetry.capnp), and the
+[`ogsa_telemetry.capnp`](ogsa_telemetry.capnp), and the
 [Common Channels annex](CHANNELS.md) for ratified cross-game channel names
 and units.
 

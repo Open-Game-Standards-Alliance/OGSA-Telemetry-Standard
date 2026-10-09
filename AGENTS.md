@@ -20,7 +20,7 @@ what got fixed) lives exclusively in the knowledge base.**
 
 ## Schema rules
 
-- `open_motion_telemetry.capnp` is the single source of truth. A JSON
+- `ogsa_telemetry.capnp` is the single source of truth. A JSON
   mirror, if ever needed for tooling, must be *generated* from the capnp —
   never hand-maintained.
 - **Optionality rule**: optional measured quantities use a single unnamed

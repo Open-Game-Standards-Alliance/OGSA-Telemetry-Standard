@@ -56,7 +56,7 @@ The 2-second discovery re-send bounds late-joiner wait time at ~1.6 kbit/s of ex
 ## Sender (game side)
 
 ```cpp
-#include "open_motion_telemetry.capnp.h"
+#include "ogsa_telemetry.capnp.h"
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 #include <sys/socket.h>
@@ -128,7 +128,7 @@ int main() {
 ## Receiver (motion software side)
 
 ```cpp
-#include "open_motion_telemetry.capnp.h"
+#include "ogsa_telemetry.capnp.h"
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 #include <sys/socket.h>
