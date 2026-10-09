@@ -40,6 +40,42 @@ this repo; the reference implementations and engine plugins are siblings.
 That's the whole contract. Receivers additionally apply the liveness and
 dedup rules in implementation-udp.md.
 
+## Game-native units (bind-path conversions)
+
+The wire speaks C-3 units only. Games rarely do. The engine SDKs'
+bind path converts game-native readings to the channel's declared unit
+at bind time — a factor precomputed once, then one multiply per sample.
+The shared conversion set, kept identical across the reference
+implementations:
+
+| Quantity | Source (game-native) | Target (wire) | Factor |
+|---|---|---|---|
+| speed | km/h | m/s | ÷3.6 |
+| speed | mph | m/s | ×0.44704 |
+| speed | ft/s | m/s | ×0.3048 |
+| speed | kn | m/s | ×1852/3600 |
+| length | ft | m | ×0.3048 |
+| angle | deg | rad | ×π/180 |
+| angular rate | deg/s | rad/s | ×π/180 |
+| rotation rate | r/s | rpm | ×60 |
+| acceleration | g | m/s² | ×9.80665 |
+| acceleration | ft/s² | m/s² | ×0.3048 |
+| pressure | bar | Pa | ×10⁵ |
+| pressure | psi | Pa | ×6894.757293168361 |
+| pressure | kPa | Pa | ×1000 |
+| mass | g | kg | ×10⁻³ |
+| ratio | % | (unitless) | ×10⁻² |
+| temperature | °F | °C | (v−32)×5/9 |
+
+This set is implementation guidance, not a clause: nothing here rides
+the wire. Source units are never declared on a channel — a channel whose
+name matches a ratified CHANNELS.md entry uses that entry's unit exactly.
+Readings outside the set convert inside the getter; an unknown pair
+fails the bind rather than guessing a factor onto the wire.
+Implementations that extend the set keep it identical across engines —
+the reference suites verify it (dotnet conversion tests; UE
+`OgsaConversionTestActor` on the wire; Godot `ConformanceCheck`).
+
 ## Validate against the conformance corpus
 
 [`conformance/`](conformance/) holds golden datagrams (envelope included)
