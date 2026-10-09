@@ -1,6 +1,6 @@
 # UDP Implementation
 
-The LTS transport is **plain UDP multicast**. At 60–120 Hz with sub-500-byte packets on a LAN or localhost, transport latency is a few hundred microseconds at most — negligible next to the game physics tick, motion cueing filters, and actuator response. A high-performance messaging layer would add a media driver process and client library to every integration for performance this use case cannot use. Plain UDP is trivial to ship in engine plugins and supports multicast, so multiple clients (dashboards, motion rigs, haptics, loggers) receive the same stream without extra ports or proxying.
+The OGSA-TS transport is **plain UDP multicast**. At 60–120 Hz with sub-500-byte packets on a LAN or localhost, transport latency is a few hundred microseconds at most — negligible next to the game physics tick, motion cueing filters, and actuator response. A high-performance messaging layer would add a media driver process and client library to every integration for performance this use case cannot use. Plain UDP is trivial to ship in engine plugins and supports multicast, so multiple clients (dashboards, motion rigs, haptics, loggers) receive the same stream without extra ports or proxying.
 
 Cap'n Proto handles serialization (see [implementation-capnproto.md](implementation-capnproto.md)). An optional Aeron backend exists for extreme-rate scenarios (see the last section).
 

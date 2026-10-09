@@ -11,11 +11,11 @@ in this org; evidence captured in the knowledge base.
 iRacing exposes world kinematics (`VelocityX/Y/Z`, `Lat`/`Lon`/`Alt`,
 `Speed`) *and* body-frame dynamics (`LatAccel`/`LongAccel`/`VertAccel`,
 `RollRate`/`PitchRate`/`YawRate`) natively — a sender-side XOR choice per
-the LTS dynamics rule, and the body accel triple + angular rates map
+the OGSA-TS dynamics rule, and the body accel triple + angular rates map
 straight into `bodyDynamics` (fifth independent confirmation of that
 variant).
 
-| iRacing | LTS destination | Class |
+| iRacing | OGSA-TS destination | Class |
 |---|---|---|
 | `Lat`/`Lon`/`Alt`, `VelocityX/Y/Z`, `Speed` | `kinematics.position/velocity` (lat/lon as geo channels) | direct |
 | `Roll`/`Pitch`/`Yaw` | `orientation` (Euler→quat) | recipe |
@@ -51,7 +51,7 @@ layer).
 
 `CarIdx*` arrays (position, lap distance, est. time, gear, RPM, steer,
 track surface/material, tyre compound — one slot per car, ~64) plus
-`PlayerCarIdx`. LTS mapping: each streamed car is its own object
+`PlayerCarIdx`. OGSA-TS mapping: each streamed car is its own object
 (`CarIdxTrackSurfaceMaterial` → `ContactMedium` per object). No schema
 gap, one sender guideline: the primary object streams at full rate;
 remote cars stream throttled or distance-filtered — full-rate 64-car
@@ -61,7 +61,7 @@ pose-only ≈ 4.4 KB/frame ≈ 266 KB/s at 60 Hz, affordable but wasteful.
 
 Documented context quirks (replay provides partial/incorrect variables;
 AI sessions reset Session variables on restart; TestDrive hides identity)
-are sender-side guidance, not schema: LTS session identity is
+are sender-side guidance, not schema: OGSA-TS session identity is
 `sessionStartUnixUs` — a replay context that keeps the session id simply
 streams what it has; restarts re-send discovery.
 

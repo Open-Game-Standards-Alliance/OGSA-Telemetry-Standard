@@ -14,7 +14,7 @@ representative, not exhaustive; the goal is coverage classification.
 
 ## Core mapping
 
-| Game field (AC / iRacing) | LTS destination | Class |
+| Game field (AC / iRacing) | OGSA-TS destination | Class |
 |---|---|---|
 | position / world coords | `position` (+ axis remap, see below) | direct |
 | rotation matrix / Euler yaw-pitch-roll | `orientation` (matrix→quat / Euler→quat at sender) | direct |
@@ -51,9 +51,9 @@ representative, not exhaustive; the goal is coverage classification.
 
 ## Conversion recipes (sender-side integration cost, not gaps)
 
-1. **Axis remap** — AC and iRacing world frames differ from LTS (LH,
+1. **Axis remap** — AC and iRacing world frames differ from OGSA-TS (LH,
    Z-forward, Y-up). Senders rotate position/velocity/acceleration and
-   convert orientation (matrix or Euler → quaternion in the LTS frame).
+   convert orientation (matrix or Euler → quaternion in the OGSA-TS frame).
    One-time per game, unit-testable.
 2. **Local-frame Gs → world acceleration** — iRacing's `LatAccel/LongAccel/
    VertAccel` (and AC's `accG`) are body-frame. Convert via orientation;

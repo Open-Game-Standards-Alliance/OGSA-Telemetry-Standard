@@ -9,39 +9,39 @@ new.
 
 ## Read mechanisms (fragmentation census)
 
-| Mechanism | Examples | LTS class |
+| Mechanism | Examples | OGSA-TS class |
 |---|---|---|
 | Game-native UDP | F1 2020–24 (116), GTA5 (20777), WhitewaterVR, Condor2, AeroFS2, FlyDangerous, AMS2 | documented game formats (tests 01–06) |
-| Shared memory (MMF) | iRacing SDK, AC/ACC `Local\\acpmf_physics`, ManiaPlanet, RedOut, Subnautica (mod-written `yawmmfsn`) | documented formats; Subnautica needs a game-side mod — the sender-side plugin LTS generalizes |
+| Shared memory (MMF) | iRacing SDK, AC/ACC `Local\\acpmf_physics`, ManiaPlanet, RedOut, Subnautica (mod-written `yawmmfsn`) | documented formats; Subnautica needs a game-side mod — the sender-side plugin OGSA-TS generalizes |
 | `ReadProcessMemory` | EliteDangerousPlugin | community memory offsets (test 07) |
 | Game TCP API | NoLimits2 scripting telemetry | documented formats |
 
 Seventy-two games, four transports, one consumer. Every plugin re-solves the
-same problem with a different wire — the fragmentation LTS exists to end.
+same problem with a different wire — the fragmentation OGSA-TS exists to end.
 
 ## Ecosystem findings
 
 1. **The consumer API is indexed floats.** YawVR maps games via
    `SetInput(i, value)` over reflection field order — positional, semantic-free.
    The NoLimits2 game API emits a **native quaternion**; the plugin degrades it
-   to Euler because the consumer API cannot accept one. LTS's
+   to Euler because the consumer API cannot accept one. OGSA-TS's
    `orientation: Quaternion` matches what games actually produce (NoLimits2,
    RedOut, VRaceHoverBike all ship quaternions) and what motion math consumes.
 2. **Body-frame accel triples are the lingua franca**: F1
    (`gForceLateral/Longitudinal/Vertical`), NoLimits2 (`gforce xyz`), RedOut
    (`AccXYZ`). GravitreX ships accel **with and without gravity** — confirming
    specific force (accelerometer reading, gravity reaction included) and
-   coordinate acceleration are genuinely distinct quantities; LTS keeps both
+   coordinate acceleration are genuinely distinct quantities; OGSA-TS keeps both
    (`bodyDynamics.specificForce` vs `kinematics.acceleration`).
 3. **RedOut ships both frames** — `AccX/Y/Z` (body) *and* `AccWorldX/Y/Z`
-   (world) — an existence proof that both LTS dynamics representations have
+   (world) — an existence proof that both OGSA-TS dynamics representations have
    real senders.
 4. **Car-shaped fakery is systemic**: rpm/gear appear even in raft, hover and
    kart packets; F1 adds `onAsphalt` per wheel (a `ContactMedium` need) and
    `wheelSlip`.
 5. **Event states are booleans in the wild**: IronRebellion
    `isHit/weaponFired/stomped/landed/jumped`, FlyDangerous boost states —
-   event-rate data that rides LTS channels.
+   event-rate data that rides OGSA-TS channels.
 
 ## Deep-dive mappings (structurally novel sources)
 
@@ -89,7 +89,7 @@ same problem with a different wire — the fragmentation LTS exists to end.
 - **iRacing/ACC/AC** full-SDK MMF → test 01 class (kinematics + per-wheel)
 - **EliteDangerousPlugin** `ReadProcessMemory` → test 07 class (accelerometer-grade, no pose)
 - **WhitewaterVR** → test 09; **ETS2/Fernbus/FS19** truck/farm sims → car class with driver-input channels
-- **Subnautica** — plugin reads a mod-written MMF (`InVehicle` + status): partial *by plugin design*; the game-side-mod pattern is the sender-side plugin LTS generalizes, not a schema matter
+- **Subnautica** — plugin reads a mod-written MMF (`InVehicle` + status): partial *by plugin design*; the game-side-mod pattern is the sender-side plugin OGSA-TS generalizes, not a schema matter
 
 ## Verdict
 

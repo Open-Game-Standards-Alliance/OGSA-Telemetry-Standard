@@ -23,7 +23,7 @@ is an accelerometer-class source.
 
 ## Core mapping
 
-| Offset | LTS destination | Class |
+| Offset | OGSA-TS destination | Class |
 |---|---|---|
 | `Sway`/`Heave`/`Surge` | `bodyDynamics.specificForce` (x/y/z, body frame) | direct |
 | `Pitch`/`Yaw`/`Roll` | `bodyDynamics.angularVelocity` (rad/s conversion) | direct |

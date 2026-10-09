@@ -17,7 +17,7 @@ against both cadences.
 
 ## Mapping
 
-| Requirement | LTS mechanism |
+| Requirement | OGSA-TS mechanism |
 |---|---|
 | declare any datapoint | `ChannelDescriptor` in discovery: sender-assigned id, stable name, unit, optional range, description — no schema change, ever |
 | high-frequency value | `ChannelValue` in `MotionObject.channels` per tick; ids cost 2 bytes; absence = unchanged (receivers hold latest known per id) |

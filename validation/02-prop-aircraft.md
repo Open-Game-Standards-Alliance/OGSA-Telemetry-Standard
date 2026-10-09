@@ -10,7 +10,7 @@
 
 ## Core mapping
 
-| Game field | LTS destination | Class |
+| Game field | OGSA-TS destination | Class |
 |---|---|---|
 | lat/lon/alt, local x/y/z (X-Plane OpenGL RH Z-up) | `position` (geodetic→local tangent + axis remap at sender) | direct |
 | pitch/roll/heading (MSFS Euler) / `position/q` (X-Plane quaternion) | `orientation` | direct |

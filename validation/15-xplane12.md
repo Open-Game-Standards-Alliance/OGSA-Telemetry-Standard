@@ -8,7 +8,7 @@ interface rather than datarefs.
 
 ## Mapping
 
-| DSET field | LTS destination | Class |
+| DSET field | OGSA-TS destination | Class |
 |---|---|---|
 | `pitch`/`roll`/`hding, true` | `orientation` (Euler→quat; true heading, not magnetic) | recipe |
 | `X`/`Y`/`Z` (local, inertial, m) | `kinematics.position` | direct |
@@ -34,7 +34,7 @@ interface rather than datarefs.
   ft, ft-lb, fpm, deg); dataref-based senders skip it. Required-units rule
   in CHANNELS.md carries the conversions.
 - Modern X-Plane integrations prefer **datarefs via plugins** — the
-  XPLM/plugin path is exactly LTS's engine-plugin sender model; the
+  XPLM/plugin path is exactly OGSA-TS's engine-plugin sender model; the
   classic UDP DSET is the legacy bridge target (like the Dirt 4 carrier
   in test 11).
 

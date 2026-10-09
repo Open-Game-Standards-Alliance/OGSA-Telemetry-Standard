@@ -7,7 +7,7 @@
 
 ## Core mapping
 
-| Game field (DCS export) | LTS destination | Class |
+| Game field (DCS export) | OGSA-TS destination | Class |
 |---|---|---|
 | pitch/bank/heading (Euler) | `orientation` (Euler→quat + axis remap) | direct |
 | world/body velocity | `kinematics.velocity` | direct |

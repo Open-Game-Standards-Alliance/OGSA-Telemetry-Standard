@@ -1,6 +1,6 @@
 # Cap'n Proto Implementation
 
-The LTS uses [Cap'n Proto](https://capnproto.org/) as its data format. Cap'n Proto is a zero-copy, binary serialization format optimized for speed and efficiency, making it an excellent choice for sending motion telemetry data over UDP. It avoids encoding/decoding overhead by using a memory-aligned layout, and it supports optional fields, nested structures, and tagged unions efficiently.
+The OGSA-TS uses [Cap'n Proto](https://capnproto.org/) as its data format. Cap'n Proto is a zero-copy, binary serialization format optimized for speed and efficiency, making it an excellent choice for sending motion telemetry data over UDP. It avoids encoding/decoding overhead by using a memory-aligned layout, and it supports optional fields, nested structures, and tagged unions efficiently.
 
 For the design behind the schema — the two frames and why metadata and samples are separated — see [DESIGN.md](DESIGN.md). This page covers working with the schema in practice.
 
@@ -42,7 +42,7 @@ f.setTimestamp(t);                    // seconds since session start
 MotionObject::Builder obj = f.initObjects(1)[0];
 obj.setName("player");
 obj.initPosition().setX(x); obj.getPosition().setY(y); obj.getPosition().setZ(z);
-auto q = obj.initOrientation();       // unit quaternion: LTS world -> object
+auto q = obj.initOrientation();       // unit quaternion: OGSA-TS world -> object
 q.setX(0.0f); q.setY(0.0f); q.setZ(0.0f); q.setW(1.0f);  // identity
 // send as frame type 0x01
 ```
@@ -146,7 +146,7 @@ kj::Array<capnp::word> buildMotion(double timestampSeconds) {
 
     // Pose core — the required minimal set (left-handed, Z-forward, Y-up)
     car.initPosition().setX(1.5f);  // …setY/setZ similarly
-    auto q = car.initOrientation(); // unit quaternion, LTS world -> object axes
+    auto q = car.initOrientation(); // unit quaternion, OGSA-TS world -> object axes
     q.setZ(0.0f); q.setW(1.0f);     // identity; …setX/setY for actual rotation
     // dynamics is optional — omit it and receivers derive velocity/
     // acceleration from pose deltas (send obj.initKinematics() for world

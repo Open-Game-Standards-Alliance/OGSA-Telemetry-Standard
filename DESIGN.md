@@ -1,10 +1,10 @@
-# LTS Schema v1: Two-Layer Design
+# OGSA-TS Schema v1: Two-Layer Design
 
 Status: current (v1.0). Authoritative schema: `open_motion_telemetry.capnp`.
 
 ## 1. Goals
 
-The schema serves the LTS requirements:
+The schema serves the OGSA-TS requirements:
 
 - Minimal, easily understood required telemetry: a game implementing just the
   pose core is compliant.
@@ -34,7 +34,7 @@ identity, wind convention, timestamps, precision). Design rationale:
 
 ## Non-goals (current scope)
 
-- **Write-back / commands.** LTS is read-only game → software in v1, a
+- **Write-back / commands.** OGSA-TS is read-only game → software in v1, a
   deliberate choice at this stage, however one that remains open
   to change through discussion with game developers. The rationale:
   a wire that can command the game is a cheat vector for competitive
@@ -82,7 +82,7 @@ camera moves for capture) are tool operations, not motion operations.
 Even force feedback needs no writes-to-game: torque flows game →
 middleware on the existing read path (`ctrl.ffb.torque`), and middleware →
 wheel is USB. A future write profile is best understood as a sibling
-control protocol that shares LTS's discovery vocabulary, not as telemetry
+control protocol that shares OGSA-TS's discovery vocabulary, not as telemetry
 becoming bidirectional.
 
 ## 2. Core idea: two layers
@@ -231,7 +231,7 @@ channels if a game ever exposes it.
   cost on every frame.
 - **Coordinate system.** Left-handed, Z-forward, Y-up, world space.
 - **Orientation as a unit quaternion.** The pose core carries `position` +
-  `orientation` (`Quaternion`, x/y/z/w, unit norm, either sign; rotates LTS
+  `orientation` (`Quaternion`, x/y/z/w, unit norm, either sign; rotates OGSA-TS
   world axes into object body axes). Chosen over a forward/up vector pair
   because the primary consumers (motion-control/cueing and
   motion-compensation software) work natively in quaternions, and

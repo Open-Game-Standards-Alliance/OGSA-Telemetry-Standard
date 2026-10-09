@@ -23,13 +23,13 @@ is consumer-specific. The consumer cannot apply it without knowing the
 sender's reference. This is exactly the class of silent-contract problem a
 standard exists to fix.
 
-## LTS mapping
+## OGSA-TS mapping
 
-| FlyPT concept | LTS destination |
+| FlyPT concept | OGSA-TS destination |
 |---|---|
 | data referenced to CG | `ObjectDescriptor.referencePoint` (declared `NamedPoint`; default = object-local frame origin (typically the CG)) |
 | occupant ~14 m ahead of CG | consumer-side: lever arm to its own pivot/head, optionally using declared `namedPoints` (`pilot`, `driverEye`, seats) |
-| center-of-rotation correction math | consumer-side (cueing software's layer); LTS transports the declared reference and named points |
+| center-of-rotation correction math | consumer-side (cueing software's layer); OGSA-TS transports the declared reference and named points |
 | per-game guessing of the reference | gone — declared once in discovery, re-sent on vehicle change |
 
 `NamedPoint` = name + vehicle-local position (meters, orientation axes).

@@ -1,6 +1,6 @@
 # Common Channels Annex
 
-Status: informative annex to the LTS v1 schema. Channel names are *data*
+Status: informative annex to the OGSA-TS v1 schema. Channel names are *data*
 carried in `ChannelDescriptor` — this annex has no schema or wire-format
 impact. It ratifies well-known channel names **with required units** so
 receivers can auto-map telemetry across games without per-game

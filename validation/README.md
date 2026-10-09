@@ -1,7 +1,7 @@
-# Validation: mapping known game telemetry to LTS v1
+# Validation: mapping known game telemetry to OGSA-TS v1
 
 Method: take a game's *documented* telemetry output (field list + semantics)
-and map every field to its LTS destination. Every field must land in exactly
+and map every field to its OGSA-TS destination. Every field must land in exactly
 one of:
 
 | Class | Meaning |
@@ -36,7 +36,7 @@ Results so far:
 | [13-extensibility.md](13-extensibility.md) | Design review — custom datapoints at two cadences | Supported — streamed channels (motion) + session channels (`values` in discovery); late joiners get whole state from discovery |
 | [14-iracing.md](14-iracing.md) | iRacing SDK official documentation (~250 vars + session YAML) | Covers + adopts `damperVelocity`; both dynamics reps native; session `values` exercised; multi-car grid guidance |
 | [15-xplane12.md](15-xplane12.md) | X-Plane 12 classic Data Set Output table | Covers — near-perfect `bodyDynamics` source (G triple + P/Q/R, 6th confirmation); imperial→SI recipes; moments → channels |
-| [16-msfs2024.md](16-msfs2024.md) | MSFS 2024 SDK — all 1,354 documented SimVars | Covers — STRUCT_* composites mirror LTS groupings; eyepoint/engine positions → `namedPoints`; CG vs non-CG AGL pair vindicates `referencePoint` |
+| [16-msfs2024.md](16-msfs2024.md) | MSFS 2024 SDK — all 1,354 documented SimVars | Covers — STRUCT_* composites mirror OGSA-TS groupings; eyepoint/engine positions → `namedPoints`; CG vs non-CG AGL pair vindicates `referencePoint` |
 
 Cross-domain results: every tested vehicle class maps to the two-layer
 model using schema fields, annex channels, and channel families — no

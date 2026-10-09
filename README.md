@@ -1,19 +1,56 @@
-# Open Game Standards Alliance: Local Telemetry Standard (LTS)
+# Open Game Standards Alliance: OGSA Telemetry Standard (OGSA-TS)
 
-The Local Telemetry Standard (LTS) provides a standardised method and format for exposing relevant telemetry data to hardware and software on the users local network.
+The OGSA Telemetry Standard (OGSA-TS) defines a standardised method and
+format for games and simulators to broadcast live telemetry to devices and
+software on the user's local area network (LAN).
 
-It defines a logical minimal set of required telemetry to meet the standard, while also allowing developers the flexibility to include additional telemetry data in a well documented structure and format.
+Any number of receivers on the LAN can consume the same stream at once:
+motion platforms, haptic vests and transducers, physical cockpit hardware,
+dashboards, and performance loggers. A game running on a console or PC can
+drive a motion rig, haptics, or instrument panels running on other machines
+in the same home — no cloud service, account, or internet connection is
+involved.
 
-It defines the network protocols and provides tools to aid implementation in multiple game engines.
+OGSA-TS telemetry stays on the local network. It is not analytics or crash
+reporting: the data is broadcast for the user's own equipment to read in
+real time, and it never leaves the LAN.
+
+It defines a logical minimal set of required telemetry to meet the standard,
+while also allowing developers the flexibility to include additional
+telemetry data in a well documented structure and format. It defines the
+network protocols and provides tools to aid implementation in multiple game
+engines.
 
 ## Origin and stewardship
 
-The Local Telemetry Standard was started and is driven by **Brian Gilbert**
-([@BrianGilbert](https://github.com/BrianGilbert)) as an open standard for
-the game development community to adopt. Design decisions and validation
-evidence are developed in the open in this repository, and the standard is
-free for anyone to implement. If it is useful to you, consider
-[sponsoring its development](https://github.com/sponsors/BrianGilbert).
+The OGSA Telemetry Standard (OGSA-TS) was started in 2024 by 
+**Brian Gilbert** ([@BrianGilbert](https://github.com/BrianGilbert)).
+
+It is developed in the open under the GitHub organization 
+[Open-Game-Standards-Alliance](https://github.com/Open-Game-Standards-Alliance). 
+That organization is currently an informal community vehicle; 
+there is no separate legal entity. Design decisions, validation 
+evidence, and the specification itself live in this repository 
+and are free for anyone to implement under the MIT license.
+
+Brian remains the primary maintainer. Contributions are welcome 
+via pull requests and issues. If the project grows a broader 
+maintainer group or a formal organization is later established, 
+this section will be updated accordingly.
+
+## Supporting the work
+
+OGSA-TS is developed in the open by Brian Gilbert. 
+If the standard is useful to you or your products, 
+you can support its continued development directly:
+
+- [GitHub Sponsors](https://github.com/sponsors/BrianGilbert)
+- [Buy Me a Coffee](https://buymeacoffee.com/itsvrk)
+
+Sponsorship goes to the primary maintainer and helps 
+fund ongoing design, validation, reference implementations, 
+and community coordination. There is currently no separate 
+legal entity or project bank account.
 
 ## Implementation
 
@@ -55,7 +92,7 @@ Per-game implementation references: core schema mapping plus sender-declared
 channel tables, ready to build against.
 
 - [MSFS 2024 sender reference](reference-msfs2024.md) — the full SimVar set
-  (1,354 variables) mapped onto LTS core schema plus channels, with
+  (1,354 variables) mapped onto OGSA-TS core schema plus channels, with
   conversions, cadences, and large-world precision guidance.
 - [iRacing sender reference](reference-iracing.md) — the irsdk set (telemetry
   + session-string YAML) mapped the same way, with multi-car grid guidance
@@ -83,11 +120,11 @@ and units.
 
 ## Scope
 
-The scope of the LTS encompasses the following key areas:
+The scope of the OGSA-TS encompasses the following key areas:
 
 ### Telemetry Transmission
 
-The LTS defines common methodologies and protocols for transmitting a wide range of telemetry data to local software/hardware to provide expanded abilities for:
+The OGSA-TS defines common methodologies and protocols for transmitting a wide range of telemetry data to local software/hardware to provide expanded abilities for:
 
     - Motion Simulation
     - Haptics and Feedback
@@ -95,27 +132,27 @@ The LTS defines common methodologies and protocols for transmitting a wide range
 
 ### Data Formatting
 
-The LTS establishes standardized formats and schemas for organizing and structuring telemetry data, ensuring consistency and compatibility across different gaming platforms, devices, and software systems.
+The OGSA-TS establishes standardized formats and schemas for organizing and structuring telemetry data, ensuring consistency and compatibility across different gaming platforms, devices, and software systems.
 
 ### Data Transmission
 
-The LTS specifies standardized communication protocols and APIs for transmitting telemetry data to devices and software on the users local network.
+The OGSA-TS specifies standardized communication protocols and APIs for transmitting telemetry data to devices and software on the user's local area network (LAN).
 
-## What the LTS Does Not Cover
+## What the OGSA-TS Does Not Cover
 
-While the LTS aims to provide a comprehensive framework for local telemetry transmission in the gaming industry, it does not cover the following areas:
+While the OGSA-TS aims to provide a comprehensive framework for local telemetry transmission in the gaming industry, it does not cover the following areas:
 
 ### Game Content
 
-The LTS does not dictate or regulate the content, design, or gameplay features of individual games. It focuses solely on the formatting, and transmission of telemetry data for devices and software on the users local network.
+The OGSA-TS does not dictate or regulate the content, design, or gameplay features of individual games. It focuses solely on the formatting, and transmission of telemetry data for devices and software on the user's local area network (LAN).
 
 ### Hardware Specifications
 
-The LTS does not prescribe specific hardware requirements or standards for gaming devices or platforms. It is platform-agnostic and designed to be compatible with a wide range of hardware configurations and operating environments.
+The OGSA-TS does not prescribe specific hardware requirements or standards for gaming devices or platforms. It is platform-agnostic and designed to be compatible with a wide range of hardware configurations and operating environments.
 
 ### Business Models
 
-The LTS does not dictate or influence the business models, pricing strategies, or monetization methods adopted by game developers, publishers, or platform providers. It focuses exclusively on technical standards and practices related to telemetry data management.
+The OGSA-TS does not dictate or influence the business models, pricing strategies, or monetization methods adopted by game developers, publishers, or platform providers. It focuses exclusively on technical standards and practices related to telemetry data management.
 
 ## Requirements
 

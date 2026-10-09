@@ -27,7 +27,7 @@ That fakery is the tax a generic standard removes.
 
 ## Core mapping
 
-| Packet field | LTS destination | Class |
+| Packet field | OGSA-TS destination | Class |
 |---|---|---|
 | `Roll`/`Pitch`/`Yaw` | `orientation` (Euler→quaternion) | direct |
 | (no position in packet) | degraded-mode pose (held/derived), like tests 07–08 | recipe |
@@ -53,4 +53,4 @@ That fakery is the tax a generic standard removes.
 
 **Covers** — no schema gaps. The raft maps honestly (buoyancy corners as
 suspension drive points; contact surface per corner), and the car-shaped
-fields are exactly the compatibility fakery LTS makes unnecessary.
+fields are exactly the compatibility fakery OGSA-TS makes unnecessary.

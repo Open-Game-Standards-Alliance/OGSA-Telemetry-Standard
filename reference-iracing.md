@@ -1,8 +1,8 @@
-# iRacing → LTS sender reference
+# iRacing → OGSA-TS sender reference
 
-How an iRacing sender (irsdk memory-mapped file → LTS bridge) exposes the
+How an iRacing sender (irsdk memory-mapped file → OGSA-TS bridge) exposes the
 documented telemetry set (250 documented variables + session-string YAML)
-as LTS v1. The irsdk surface is itself read-only, matching LTS scope.
+as OGSA-TS v1. The irsdk surface is itself read-only, matching OGSA-TS scope.
 
 Source: iRacing SDK documentation. Unit column: where the docs state no
 unit (†), the sender must verify at capture and declare the channel unit —
@@ -10,7 +10,7 @@ values must never be guessed onto the wire.
 
 ## Core schema (no channels needed)
 
-| LTS field | irsdk source | Conversion |
+| OGSA-TS field | irsdk source | Conversion |
 |---|---|---|
 | `kinematics.position` | **not exposed** — no local-world XYZ. Sender either (a) keeps a session-stable local origin and derives meters from `Lat`/`Lon`/`Alt` (equirectangular, ~0.3 % error at track scale), or (b) leaves position near-origin and carries absolute location only via geo channels (rigs do not need absolute position) | recipe |
 | `orientation` | `Roll`/`Pitch`/`Yaw` † | Euler → quaternion |
@@ -79,7 +79,7 @@ also ride a channel. `SessionTick`/`SessionTime`/`FrameRate` stream
 
 ## Session-string YAML → discovery
 
-| YAML section | LTS home |
+| YAML section | OGSA-TS home |
 |---|---|
 | `WeekendInfo` (weather type, wind, commercial/team modes, track size) | session `values` on the primary object |
 | `SessionInfo` (session type, results, laps) | session `values` |
@@ -89,7 +89,7 @@ also ride a channel. `SessionTick`/`SessionTime`/`FrameRate` stream
 
 ## Multi-car grid
 
-`CarIdx*` arrays + `PlayerCarIdx` → one LTS object per streamed car
+`CarIdx*` arrays + `PlayerCarIdx` → one OGSA-TS object per streamed car
 (descriptors built from `DriverInfo`; identity = car index). Guidance from
 test 14: primary object at full rate; remote cars throttled or
 distance-filtered (full-rate 64-car pose ≈ 266 KB/s at 60 Hz — affordable,
@@ -100,10 +100,10 @@ ClassPosition`).
 
 ## Sender notes
 
-- The irsdk publishes at its own fixed rate (session-tick based); the LTS
+- The irsdk publishes at its own fixed rate (session-tick based); the OGSA-TS
   sender streams per captured tick and lets discovery declare cadence.
 - † entries: the documentation set is maturing (units present on 40/250
   variable pages). Senders verify at capture and declare; receivers trust
   the declared unit. Never guess.
 - Community-tooling precedent for the bridge: SimHub/GPDS already parse
-  this surface — an LTS sender is a re-emit, not an extraction project.
+  this surface — an OGSA-TS sender is a re-emit, not an extraction project.

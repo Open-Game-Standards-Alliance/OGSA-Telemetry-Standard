@@ -1,6 +1,6 @@
-# MSFS 2024 → LTS sender reference
+# MSFS 2024 → OGSA-TS sender reference
 
-How an MSFS 2024 sender exposes its simulation variables as LTS v1. Core
+How an MSFS 2024 sender exposes its simulation variables as OGSA-TS v1. Core
 quantities land in the schema directly; everything else rides sender-
 declared channels. Scope: read-only egress — SimConnect key events and
 variable writes remain the command path (see DESIGN, Non-goals).
@@ -9,7 +9,7 @@ Source variables: the MSFS 2024 SDK SimVar set (1,354 documented names).
 
 ## Core schema (no channels needed)
 
-| LTS field | SimVar source | Conversion |
+| OGSA-TS field | SimVar source | Conversion |
 |---|---|---|
 | `kinematics.position` | local world X/Y/Z (session-stable local origin — re-origin on teleport, not planetary absolutes) | m, direct |
 | `orientation` | `PLANE_PITCH/BANK/HEADING_DEGREES_TRUE` | Euler (rad!) → quaternion |
