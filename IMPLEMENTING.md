@@ -57,7 +57,7 @@ implementations:
 | length | ft | m | ×0.3048 |
 | angle | deg | rad | ×π/180 |
 | angular rate | deg/s | rad/s | ×π/180 |
-| rotation rate | r/s | rpm | ×60 |
+| rotation rate | rps | rpm | ×60 |
 | acceleration | g | m/s² | ×9.80665 |
 | acceleration | ft/s² | m/s² | ×0.3048 |
 | pressure | bar | Pa | ×10⁵ |

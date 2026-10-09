@@ -1,0 +1,17 @@
+name: ci
+# The standard validates itself through a third implementation: pycapnp
+# (official capnproto bindings) decodes every golden vector and asserts
+# the manifest-declared semantics — independent of the reference SDKs
+# that generated the corpus.
+on: [push, pull_request]
+
+jobs:
+  corpus:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: pip install pycapnp
+      - run: python conformance/validate.py
