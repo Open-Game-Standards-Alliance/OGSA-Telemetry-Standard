@@ -13,6 +13,18 @@ The schema lives in [`ogsa_telemetry.capnp`](ogsa_telemetry.capnp) and defines t
 
 Compile it for C++:
 
+## Message framing (normative)
+
+A datagram's Cap'n Proto payload is in the standard serialization format:
+a segment table followed by the segments. The table is a `u32` segment
+count minus one, then one `u32` word-size per segment, padded with zeros
+to an **even u32 count** (so a 1-segment table is exactly one word — 8
+bytes — with no additional padding). Messages are single-segment in
+practice; multi-segment is legal but unnecessary at OGSA-TS frame sizes.
+This is the canonical capnproto framing: messages built by official
+capnp implementations (C++, Rust, Go, Python…) are valid OGSA-TS payloads
+as-is, and vice versa — verified against the conformance corpus.
+
 ```bash
 capnp compile -oc++ ogsa_telemetry.capnp
 ```

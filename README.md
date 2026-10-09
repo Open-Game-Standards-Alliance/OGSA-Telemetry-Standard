@@ -54,6 +54,11 @@ legal entity or project bank account.
 
 ## Implementation
 
+Building a sender or receiver (any language, any engine — including
+custom ones)? Start at [IMPLEMENTING.md](IMPLEMENTING.md) — the
+implementer's path, minimum-conformant-sender checklist, corpus
+validation, and the fastest routes per engine.
+
 ### Conventions
 
 Frames, quaternion policy, units (SI plus a closed whitelist), rotation
