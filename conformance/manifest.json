@@ -1,0 +1,204 @@
+{
+  "corpusVersion": 1,
+  "schemaVersion": 1,
+  "envelope": {
+    "magic": "OMT1",
+    "headerBytes": 8
+  },
+  "floatRule": "all floats in this corpus are float32-exact; implementations compare exactly",
+  "vectors": [
+    {
+      "id": "discovery-minimal",
+      "file": "vectors/discovery-minimal.hex",
+      "frameType": "discovery",
+      "description": "Smallest valid DiscoveryFrame: one primary object, no channels or drive points",
+      "input": {
+        "schemaVersion": 1,
+        "gameName": "conformance",
+        "sessionStartUnixUs": 1730000000000000,
+        "environment": {
+          "airDensity": 1.25,
+          "temperature": 20,
+          "pressure": 1,
+          "gravity": 9.5,
+          "medium": "asphalt"
+        },
+        "objects": [
+          {
+            "name": "obj",
+            "type": "vehicle",
+            "primary": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "discovery-channels",
+      "file": "vectors/discovery-channels.hex",
+      "frameType": "discovery",
+      "description": "Object with three channels incl. ranges and a unitless boolean channel",
+      "input": {
+        "schemaVersion": 1,
+        "gameName": "conformance",
+        "sessionStartUnixUs": 1730000000000000,
+        "objects": [
+          {
+            "name": "demo_car",
+            "type": "vehicle",
+            "primary": true,
+            "channels": [
+              {
+                "id": 0,
+                "name": "engine.rpm",
+                "unit": "rpm",
+                "range": {
+                  "min": 0,
+                  "max": 9000
+                }
+              },
+              {
+                "id": 1,
+                "name": "vehicle.speed",
+                "unit": "m/s",
+                "range": {
+                  "min": 0,
+                  "max": 30
+                }
+              },
+              {
+                "id": 2,
+                "name": "lights.headlights",
+                "unit": ""
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "motion-pose",
+      "file": "vectors/motion-pose.hex",
+      "frameType": "motion",
+      "description": "Pose core only: position \u002B identity quaternion",
+      "input": {
+        "timestamp": 1.25,
+        "objects": [
+          {
+            "name": "obj",
+            "position": {
+              "x": 1.5,
+              "y": 0.25,
+              "z": -3.75
+            },
+            "orientation": {
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "w": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "motion-channels",
+      "file": "vectors/motion-channels.hex",
+      "frameType": "motion",
+      "description": "Pose \u002B channel values: numbers and a boolean keyed by discovery ids",
+      "input": {
+        "timestamp": 2.5,
+        "objects": [
+          {
+            "name": "demo_car",
+            "position": {
+              "x": -2,
+              "y": 0.5,
+              "z": 3
+            },
+            "orientation": {
+              "x": 0,
+              "y": 1,
+              "z": 0,
+              "w": 0
+            },
+            "channels": [
+              {
+                "id": 0,
+                "number": 3250.5
+              },
+              {
+                "id": 1,
+                "number": 8
+              },
+              {
+                "id": 2,
+                "boolean": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "motion-multi",
+      "file": "vectors/motion-multi.hex",
+      "frameType": "motion",
+      "description": "Primary object first, second object after (multi-car grids)",
+      "input": {
+        "timestamp": 3.75,
+        "objects": [
+          {
+            "name": "player_car",
+            "position": {
+              "x": 1,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "w": 1
+            }
+          },
+          {
+            "name": "wingman",
+            "position": {
+              "x": -1,
+              "y": 0.5,
+              "z": 2.5
+            },
+            "orientation": {
+              "x": 0,
+              "y": 1,
+              "z": 0,
+              "w": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "event-impact",
+      "file": "vectors/event-impact.hex",
+      "frameType": "event",
+      "description": "One body.impact stimulus with direction, intensity and duration",
+      "input": {
+        "timestamp": 0.125,
+        "events": [
+          {
+            "id": 7,
+            "name": "body.impact",
+            "intensity": 0.75,
+            "duration": 0.25,
+            "direction": {
+              "x": -1,
+              "y": 0,
+              "z": 0
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

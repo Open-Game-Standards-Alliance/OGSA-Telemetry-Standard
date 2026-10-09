@@ -107,6 +107,11 @@ providers, consumer documentation), 100+ game outputs, zero open gaps.
 
 [Validation tests and results](validation/README.md).
 
+### Conformance corpus
+
+Golden datagrams + semantic manifest for byte-level encoder agreement
+across engine implementations — [conformance/](conformance/).
+
 ### Schema (v1, two-layer)
 
 The schema separates static metadata from per-frame samples: a low-rate

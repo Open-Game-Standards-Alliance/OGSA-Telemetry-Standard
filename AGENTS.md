@@ -19,6 +19,9 @@ what got fixed) lives exclusively in the knowledge base.**
 - Commit messages describe the change, not the deliberation.
 
 ## Schema rules
+- `conformance/` is the byte-level conformance corpus: golden datagrams +
+  manifest, generated deterministically by ogsa-ts-dotnet `src/ConformanceGen`.
+  Regenerate there; a non-empty diff without a deliberate wire change is a bug.
 
 - `ogsa_telemetry.capnp` is the single source of truth. A JSON
   mirror, if ever needed for tooling, must be *generated* from the capnp —
