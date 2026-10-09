@@ -1,4 +1,4 @@
-# AGENTS.md — Local-Telemetry-Standard
+# AGENTS.md — OGSA-Telemetry-Standard
 
 Working conventions for agents editing this repo. The short version:
 **product docs describe what is; process (what was considered, what changed,
