@@ -4,6 +4,8 @@ The OGSA Telemetry Standard (OGSA-TS) defines a standardised method and
 format for games and simulators to broadcast live telemetry to devices and
 software on the user's local area network (LAN).
 
+Community & support: [Discord](https://discord.gg/tseF4Q6U99)
+
 Any number of receivers on the LAN can consume the same stream at once:
 motion platforms, haptic vests and transducers, physical cockpit hardware,
 dashboards, and performance loggers. A game running on a console or PC can
