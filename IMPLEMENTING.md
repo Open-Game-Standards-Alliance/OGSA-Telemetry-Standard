@@ -40,6 +40,24 @@ this repo; the reference implementations and engine plugins are siblings.
 That's the whole contract. Receivers additionally apply the liveness and
 dedup rules in implementation-udp.md.
 
+### Naming: gameName and object names
+
+`gameName` identifies the session's source on receiver UIs and in
+per-game state (channel mappings, profiles), so senders SHOULD use the
+engine's product/project name when one is available (`Application.productName`,
+`FApp::GetProjectName()`, …) rather than a process/executable name; if only
+the executable is available, strip pack/build tokens ("Game-Win64-Shipping"
+→ "Game"). Users can always override via sender config.
+
+Object `name` is the identity receivers match motion frames to discovery
+by — it MUST stay stable for the session. Senders that track a
+runtime-discovered object (an injected mod following the local pawn)
+SHOULD keep a stable role name ("player") and surface what is actually
+being tracked in `typeLabel`, updated by a discovery re-send when it
+changes (possession, vehicle swap). Raw instance names (UE
+"BP_Foo_C_3", Unity "Player (2)") are not stable — strip the instance
+suffix before putting them on the wire.
+
 ## Game-native units (bind-path conversions)
 
 The wire speaks C-3 units only. Games rarely do. The engine SDKs'
