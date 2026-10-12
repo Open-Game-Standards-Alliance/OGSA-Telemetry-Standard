@@ -99,7 +99,9 @@ struct ObjectDescriptor {
   name @0 :Text;                   # stable per session; matches MotionObject.name
   type @1 :ObjectType;             # coarse class; ratifiable enum
   location @2 :Text;               # e.g. track/place name (display-only)
-  typeLabel @3 :Text;              # optional display label, e.g. "Formula 1 2024"
+  typeLabel @3 :Text;              # optional display label, e.g. "Formula 1 2024";
+                                   # receivers may also select per-vehicle
+                                   # profiles on it (exact match)
   primary @4 :Bool;                # reference object for motion rigs / compensation;
                                    # exactly one SHOULD be set per discovery frame
   referencePoint @5 :NamedPoint;   # where reported pose/dynamics are measured;

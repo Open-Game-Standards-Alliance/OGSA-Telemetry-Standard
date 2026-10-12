@@ -58,6 +58,25 @@ changes (possession, vehicle swap). Raw instance names (UE
 "BP_Foo_C_3", Unity "Player (2)") are not stable — strip the instance
 suffix before putting them on the wire.
 
+### Receiver profile selection
+
+Motion software that lets users tune rig response selects profiles along
+a three-level cascade over discovery, most to least specific:
+
+1. `gameName` — per-game profile (channel mappings, cueing defaults)
+2. the primary object's `ObjectType` — cueing preset per class (car vs
+   aircraft vs watercraft vs on-foot humanoid)
+3. the primary object's `typeLabel` — per-vehicle refinement, when a user
+   wants one specific machine to respond differently from its class
+
+Each level falls back to the one above it when nothing matches.
+`typeLabel` is sender-chosen free text: receivers match it exactly
+(case-sensitive equality), never fuzzily — an absent or unmatched label
+simply keeps the `ObjectType` preset. The switch signal is discovery
+itself: a vehicle swap re-sends discovery immediately (the ~2 s periodic
+re-send heals a lost one), so profile swaps land in realtime while the
+motion stream never changes shape.
+
 ## Game-native units (bind-path conversions)
 
 The wire speaks C-3 units only. Games rarely do. The engine SDKs'
