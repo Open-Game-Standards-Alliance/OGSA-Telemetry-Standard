@@ -246,8 +246,9 @@ channels if a game ever exposes it.
   domain hints already live in the drive-point union. Unknown enumerants
   survive round-trips (`UInt16` on the wire), so new values can be ratified
   in v1.x without breaking deployed receivers. `typeLabel` (optional text)
-  carries display flavor; `location` stays free text, pure display data
-  nothing switches on.
+  carries display flavor and the finest grain of receiver profile
+  selection (the cascade in the next bullet); `location` stays free text,
+  pure display data nothing switches on.
 - **Explicit `primary` flag.** The descriptor of the reference object (the
   pose a motion rig reproduces and a compensation tool corrects) carries
   `primary = true` (exactly one SHOULD be set; receivers fall back to the
@@ -256,6 +257,15 @@ channels if a game ever exposes it.
   aircraft, the game re-sends discovery with a new primary object and
   `ObjectType`; receivers watching discovery switch cueing presets
   automatically.
+- **Receiver profile selection is a cascade.** Motion software that lets
+  users tune rig response selects along three levels over discovery, most
+  to least specific: `gameName` → the primary object's `ObjectType` → the
+  primary object's `typeLabel`. Each level falls back to the one above it
+  when no user profile matches, and `typeLabel` is matched exactly
+  (sender-chosen free text, never fuzzy). One wire therefore covers
+  per-game, per-class, and per-vehicle tuning — a user can make one
+  specific machine feel different from its class — with no sender-side
+  profile concept; the discovery re-send is the switch signal.
 - **Common Channels annex.** Cross-game semantics are ratified in
   [`CHANNELS.md`](CHANNELS.md): an optional vocabulary of well-known channel
   names with required units (`engine.rpm` is `rpm`). Senders SHOULD use
