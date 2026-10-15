@@ -25,6 +25,7 @@ exactly, no epsilon.
 | `motion-pose` | pose core: position + identity quaternion |
 | `motion-channels` | pose + number/boolean channel values by discovery id |
 | `motion-multi` | two objects, primary first |
+| `motion-bodydynamics` | pose + `bodyDynamics` union: accelerometer-style specific force, C-4 angular velocity |
 | `event-impact` | `body.impact` with intensity, duration, direction |
 
 ## Using the corpus

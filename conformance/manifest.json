@@ -1,5 +1,5 @@
 {
-  "corpusVersion": 1,
+  "corpusVersion": 2,
   "schemaVersion": 1,
   "envelope": {
     "magic": "OMT1",
@@ -173,6 +173,43 @@
               "y": 1,
               "z": 0,
               "w": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "motion-bodydynamics",
+      "file": "vectors/motion-bodydynamics.hex",
+      "frameType": "motion",
+      "description": "Pose \u002B bodyDynamics union variant: accelerometer-style specific force (\u002Bheave gravity reaction at rest) and C-4 body angular velocity",
+      "input": {
+        "timestamp": 4.5,
+        "objects": [
+          {
+            "name": "obj",
+            "position": {
+              "x": 0.5,
+              "y": 1.25,
+              "z": -2.5
+            },
+            "orientation": {
+              "x": 0,
+              "y": 0.5,
+              "z": 0,
+              "w": 0.875
+            },
+            "bodyDynamics": {
+              "specificForce": {
+                "x": 0.25,
+                "y": 9.5,
+                "z": -1.5
+              },
+              "angularVelocity": {
+                "x": -0.125,
+                "y": 0.375,
+                "z": 0.75
+              }
             }
           }
         ]
