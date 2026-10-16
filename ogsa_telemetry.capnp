@@ -46,28 +46,35 @@ enum ObjectType {
   # domain hints live in the drive-point union (wheel/propeller/sail/leg).
   # Unknown enumerants survive round-trips (UInt16 on the wire), so new
   # values may be ratified in v1.x without breaking deployed receivers.
-  vehicle    @0;   # ground: car, kart, tank
-  aircraft   @1;   # plane, helicopter, drone
-  watercraft @2;   # boat, ship, submarine
-  spacecraft @3;
-  humanoid   @4;   # on-foot player or NPC
-  camera     @5;   # spectator / free camera
-  creature   @6;   # horse, dragon, alien — pose core is domain-agnostic;
+  # `other` holds the zero value so the catch-all never interleaves with
+  # real classes as the set grows (additions append below), and an unset
+  # type decodes as "unknown" instead of guessing a cueing preset.
+  other      @0;   # escape hatch — never force a wrong class
+  vehicle    @1;   # ground: car, kart, tank
+  aircraft   @2;   # plane, helicopter, drone
+  watercraft @3;   # boat, ship, submarine
+  spacecraft @4;
+  humanoid   @5;   # on-foot player or NPC
+  camera     @6;   # spectator / free camera
+  creature   @7;   # horse, dragon, alien — pose core is domain-agnostic;
                    # taxonomy detail rides typeLabel ("dragon", "warhorse")
-  other      @7;   # escape hatch — never force a wrong class
 }
 
 enum ContactMedium {
-  air         @0;
-  asphalt     @1;
-  dirt        @2;
-  grass       @3;
-  gravel      @4;
-  rumbleStrip @5;
-  water       @6;
-  snow        @7;
-  ice         @8;
-  other       @9;
+  # `other` holds the zero value so the catch-all never interleaves with
+  # real mediums as the set grows (additions append below), and an unset
+  # medium decodes as "unknown" rather than guessing a real medium.
+  other       @0;
+  air         @1;
+  asphalt     @2;
+  dirt        @3;
+  grass       @4;
+  gravel      @5;
+  rumbleStrip @6;
+  water       @7;
+  snow        @8;
+  ice         @9;
+  vacuum      @10;
 }
 
 struct Environment {
