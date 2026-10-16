@@ -72,7 +72,7 @@ These families are annex candidates once naming stabilizes across ≥2 games
 | Name | Type | Unit | Description |
 |---|---|---|---|
 | `engine.rpm` | number | `rpm` | Crankshaft / shaft revolutions per minute |
-| `engine.throttle` | number | — | Driver throttle input, 0..1 (C-3) |
+| `engine.throttle` | number | — | Driver throttle input, −1..1 (C-3): −1 = full reverse thrust, 0 = idle/no thrust, +1 = full forward. Unidirectional vehicles simply send 0..1; reverse-by-gear cars keep the pedal here 0..1 and express direction via `transmission.gear` |
 | `engine.torque` | number | `Nm` | Current engine output torque |
 | `engine.temperature` | number | `degC` | Coolant / motor temperature |
 | `engine.running` | boolean | — | Engine/motor currently producing power |

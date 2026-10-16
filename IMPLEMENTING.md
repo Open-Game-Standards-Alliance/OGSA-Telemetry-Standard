@@ -113,6 +113,25 @@ Implementations that extend the set keep it identical across engines —
 the reference suites verify it (dotnet conversion tests; UE
 `OgsaConversionTestActor` on the wire; Godot `ConformanceCheck`).
 
+### Native angular velocity (component sense)
+
+Engines that expose a measured angular velocity (Unity
+`Rigidbody.angularVelocity`, Unreal `GetAngularVelocityRadPerSecond`,
+PhysX `readAngularVelocity`) report it in the engine's *stored-Hamilton*
+component sense, which differs from C-4 on two of three axes: a positive
+stored rotation about +y is nose-right (matches C-4 +yaw), but about +x it
+tilts the nose down and about +z it rolls left-side-down. Senders that
+bind native rates instead of deriving them from pose deltas must
+
+1. rotate the world-frame reading into the body frame (the inverse of the
+   reported orientation), then
+2. map components as **(−x, +y, −z)** onto C-4.
+
+The derivation and its receiver-side anchors live in the reference
+implementations' `BodyDynamicsDeriver` (dotnet/Unity/Godot share the C#
+class; UE has the C++ twin). Getting this wrong inverts pitch and roll
+cues silently — prefer the shared helper over hand-mapping.
+
 ## Validate against the conformance corpus
 
 [`conformance/`](conformance/) holds golden datagrams (envelope included)
