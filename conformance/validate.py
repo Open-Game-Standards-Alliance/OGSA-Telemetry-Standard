@@ -43,9 +43,10 @@ def main():
     manifest = json.loads(MANIFEST.read_text())
     check("manifest schemaVersion 1", manifest["schemaVersion"] == 1)
     ids = [v["id"] for v in manifest["vectors"]]
-    check("six known vectors", ids == [
+    check("seven known vectors", ids == [
         "discovery-minimal", "discovery-channels", "motion-pose",
-        "motion-channels", "motion-multi", "event-impact"], str(ids))
+        "motion-channels", "motion-multi", "motion-bodydynamics",
+        "event-impact"], str(ids))
 
     for vec_id in ids:
         ft, payload = load(vec_id)
@@ -102,6 +103,19 @@ def check_motion_multi(m):
             and (m.objects[1].position.y, m.objects[1].position.z) == (0.5, 2.5))
 
 
+def check_motion_bodydynamics(m):
+    o = m.objects[0]
+    bd = o.bodyDynamics
+    return (m.timestamp == 4.5 and o.name == "obj"
+            and (o.position.x, o.position.y, o.position.z) == (0.5, 1.25, -2.5)
+            and o.orientation.y == 0.5 and o.orientation.w == 0.875
+            and o.which == "bodyDynamics"
+            and (bd.specificForce.x, bd.specificForce.y, bd.specificForce.z)
+                == (0.25, 9.5, -1.5)
+            and (bd.angularVelocity.x, bd.angularVelocity.y, bd.angularVelocity.z)
+                == (-0.125, 0.375, 0.75))
+
+
 def check_event_impact(e):
     ev = e.events[0]
     return (e.timestamp == 0.125 and len(e.events) == 1
@@ -114,7 +128,7 @@ def check_event_impact(e):
 expected_type = {
     "discovery-minimal": 0, "discovery-channels": 0,
     "motion-pose": 1, "motion-channels": 1, "motion-multi": 1,
-    "event-impact": 2,
+    "motion-bodydynamics": 1, "event-impact": 2,
 }
 
 
