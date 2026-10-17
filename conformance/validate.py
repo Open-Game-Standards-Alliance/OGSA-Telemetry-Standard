@@ -39,8 +39,13 @@ frame_type_names = {0: "DiscoveryFrame", 1: "MotionFrame", 2: "EventFrame"}
 
 
 def main():
-    schema = capnp.load(str(SCHEMA))
-    manifest = json.loads(MANIFEST.read_text())
+    schema = capnp.load(str(SCHEMA))  # type: ignore # stub-less Cython module
+    try:
+        manifest = json.loads(MANIFEST.read_text())
+    except (OSError, ValueError) as exc:
+        # unreadable/corrupt manifest is a CI failure, not a traceback
+        print(f"FAIL manifest readable/valid — {exc}")
+        sys.exit(1)
     check("manifest schemaVersion 1", manifest["schemaVersion"] == 1)
     ids = [v["id"] for v in manifest["vectors"]]
     check("seven known vectors", ids == [
