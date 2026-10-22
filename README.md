@@ -61,6 +61,15 @@ custom ones)? Start at [IMPLEMENTING.md](IMPLEMENTING.md) — the
 implementer's path, minimum-conformant-sender checklist, corpus
 validation, and the fastest routes per engine.
 
+### Reference implementations
+
+Wired and validated engine plugins, maintained as sibling repos:
+
+- [ogsa-ts-dotnet](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-dotnet) — engine-agnostic .NET core (`Ogsa.Telemetry`); the Unity and Godot plugins wrap it
+- [ogsa-ts-unity](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-unity)
+- [ogsa-ts-unreal](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-unreal)
+- [ogsa-ts-godot](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-godot)
+
 ### Conventions
 
 Frames, quaternion policy, units (SI plus a closed whitelist), rotation

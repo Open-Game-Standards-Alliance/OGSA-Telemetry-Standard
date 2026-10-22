@@ -1,7 +1,9 @@
 # Conformance corpus
 
 Golden OGSA-TS datagrams + a semantic manifest, generated deterministically
-by the reference implementation (`ogsa-ts-dotnet`, `src/ConformanceGen`).
+by the reference implementation
+([`ogsa-ts-dotnet`](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-dotnet),
+`src/ConformanceGen`).
 Every engine implementation (Unity, Godot, UE, …) validates against this
 corpus so their encoders provably agree on the wire.
 

@@ -162,10 +162,10 @@ bytes.fromhex(open("conformance/vectors/motion-pose.hex").read().strip()[16:]))`
 
 | Situation | Start from |
 |---|---|
-| **Custom .NET engine** (MonoGame, Stride, FNA, bespoke) | [`ogsa-ts-dotnet`](../ogsa-ts-dotnet) — `Ogsa.Telemetry` is engine-agnostic by design; the Unity and Godot plugins are thin wrappers over it |
-| **Custom C++ engine** | [`ogsa-ts-unreal/Source/OgsaTelemetryCore`](../ogsa-ts-unreal) — std-only, zero dependencies, byte-exact against the corpus; vendor it and add your socket + glue |
+| **Custom .NET engine** (MonoGame, Stride, FNA, bespoke) | [`ogsa-ts-dotnet`](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-dotnet) — `Ogsa.Telemetry` is engine-agnostic by design; the Unity and Godot plugins are thin wrappers over it |
+| **Custom C++ engine** | [`ogsa-ts-unreal/Source/OgsaTelemetryCore`](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-unreal) — std-only, zero dependencies, byte-exact against the corpus; vendor it and add your socket + glue |
 | **Any other language** | The schema + this page + any official capnp implementation (C++, Rust, Go, Python, Java, JS…) — the wire is canonical Cap'n Proto |
-| **Unity / Unreal / Godot** | The engine plugins ([ogsa-ts-unity](../ogsa-ts-unity), [ogsa-ts-unreal](../ogsa-ts-unreal), [ogsa-ts-godot](../ogsa-ts-godot)) — wired and validated |
+| **Unity / Unreal / Godot** | The engine plugins ([ogsa-ts-unity](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-unity), [ogsa-ts-unreal](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-unreal), [ogsa-ts-godot](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-godot)) — wired and validated |
 
 Reference receiver for testing your sender:
-`ogsa-ts-dotnet` → `dotnet run --project src/TelemetryReceive`.
+[`ogsa-ts-dotnet`](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-dotnet) → `dotnet run --project src/TelemetryReceive`.
