@@ -38,8 +38,7 @@ what got fixed) lives exclusively in the knowledge base.**
   reuse a ratified name with a different unit. New entries need ≥2-game
   evidence and PR review; entries are never renamed or re-united.
   `ctrl.*` / `wind.*` / `air.*` are convention families, not entries.
-- Transport is plain UDP multicast with the 8-byte `OMT1` envelope; Aeron
-  is an optional backend behind the same envelope.
+- Transport is plain UDP multicast with the 8-byte `OMT1` envelope.
 
 ## Validation docs
 

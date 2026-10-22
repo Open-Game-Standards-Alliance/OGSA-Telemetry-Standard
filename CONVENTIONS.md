@@ -38,6 +38,19 @@ rides the wire. Channel `unit` strings use exactly these spellings
 (`degC`, `rpm`, `Pa`, …). Receivers trust the declaration and never guess
 units onto the wire.
 
+`°C` and `rpm` are the only two exceptions because, unlike velocity,
+acceleration, force, and pressure, neither quantity typically feeds
+further receiver-side math: washout filters, FFB force calculations, and
+cueing transforms consume m/s, m/s², N, and Pa directly, so keeping those
+SI avoids a hidden conversion before they can be used. Temperature and
+rotational speed are terminal — read by a gauge, dashboard, or logger and
+nothing else — so there SI buys the wire nothing, and the exception
+matches what every tachometer and thermometer already shows. Speed does
+not get the same exception despite `km/h`/`mph` being the common dashboard
+unit, because velocity is exactly the kind of value consumer-side
+kinematics (interpolation, derived acceleration, cueing) operates on
+directly, the same reason pressure and force stay SI.
+
 ## C-4 Rotation sign
 
 Rotations follow the body axes of C-1: **+pitch = nose-up (about x),
@@ -85,12 +98,19 @@ monotonic within a session; a new anchor value declares a new session.
 
 ## C-9 Precision
 
-All wire floats are Float32. World `position` assumes a session-stable
-local origin: large-world senders re-origin on teleport/session start
-rather than emitting absolute planetary coordinates. Geographic lat/lon
-rides channels, where Float32 gives ~1 m precision at Earth magnitudes —
-display-grade, not navigation-grade; senders needing more split degrees
-from fractional degrees.
+All wire floats are Float32, not Float64: every consumer class (motion
+cueing, haptics, dashboards) renders or actuates from the value within
+one frame, so the ~7 decimal digits of relative precision Float32 gives
+is already well past what a physical actuator or a human eye resolves,
+and halving every float field's wire cost matters at 60-120 Hz where
+Float64 would not buy a receiver anything it can use. The one place this
+trades against absolute magnitude is large worlds, handled structurally
+rather than by widening the type: world `position` assumes a
+session-stable local origin, so large-world senders re-origin on
+teleport/session start rather than emitting absolute planetary
+coordinates. Geographic lat/lon rides channels, where Float32 gives ~1 m
+precision at Earth magnitudes — display-grade, not navigation-grade;
+senders needing more split degrees from fractional degrees.
 
 ## C-10 Events
 

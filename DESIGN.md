@@ -186,6 +186,23 @@ channels if a game ever exposes it.
 
 ## 5. Key decisions and rationale
 
+- **Cap'n Proto over a hand-rolled fixed-layout struct.** The obvious
+  alternative, pack fields into a struct and send it raw over UDP, is
+  what most existing sim telemetry already does, and it fails on
+  a core capability this standard needs. A struct has no schema evolution:
+  adding a channel changes the layout, so every receiver breaks or must
+  special-case a version. It has no cross-language/cross-compiler
+  portability without hand-maintained offset tables (padding, alignment,
+  and endianness are compiler- and platform-specific). And it has no safe
+  optional or variable-length data: every optional field breaks things and every string is a fixed buffer, or the parser hand-
+  rolls variable layout itself. Cap'n Proto keeps the one
+  property a struct has that matters here, no parse step and read in place, 
+  while adding schema evolution (unknown-field/union-discriminant
+  skipping, §8), portability (one schema, codegen per language), and real
+  optional/variable data (unions, lists, text) as first-class. The cost is
+  a schema compiler and a codegen step in the build, once per engine (see
+  `implementation-capnproto.md`); for a standard meant to outlive any one
+  game's telemetry struct, this is the correct choice.
 - **Channel ids over per-frame names.** Names in every frame repeat ~10 bytes
   per channel per tick; ids cost 2 bytes. Discovery keeps names durable and
   human-readable where it is cheap. Ids are sender-assigned per object, stable
@@ -275,15 +292,23 @@ channels if a game ever exposes it.
   already solved by discovery ids, so the annex is semantic convenience at
   zero wire cost. New entries require the concept in ≥2 shipping games and a
   reviewed PR; entries are never renamed or re-united.
-- **Plain UDP over a messaging library.** At 60-120 Hz with sub-500-byte
-  packets, transport latency is a few hundred microseconds at most, noise
-  next to the physics tick, cueing filters, and actuator response. A high-
-  performance messaging layer would add a media driver and client library to
-  every integration for performance this use case cannot use. Plain UDP
-  multicast is trivial to ship in engine plugins (see §7 and
-  `implementation-udp.md`); Aeron remains an optional backend for extreme
-  rates, strict ordering under load, or back-pressure across many
-  subscribers.
+- **Plain UDP over a messaging library or shared memory.** At 60-120 Hz
+  with sub-500-byte packets, transport latency is a few hundred
+  microseconds at most, noise next to the physics tick, cueing filters,
+  and actuator response. A high-performance messaging layer would add a
+  media driver and client library to every integration for performance
+  this use case cannot use. Plain UDP multicast is trivial to ship in
+  engine plugins (see §7 and `implementation-udp.md`). Shared memory (a memory-mapped
+  file) is the alternative most existing sim telemetry already uses
+  (iRacing, Assetto Corsa/ACC, ManiaPlanet, RedOut), but it is the wrong
+  shape for the "multiple local clients without extra ports or proxying"
+  requirement: an MMF is a single-writer region readers poll and must
+  coordinate torn-read protection against themselves, not a fan-out
+  primitive — N consumers (dashboard, motion rig, haptics, logger) either
+  share bespoke versioning/locking or each race the writer independently.
+  Multicast UDP gives every consumer the same stream on joining the
+  group, with no shared-file coordination, and does not foreclose a
+  second machine on the LAN the way an MMF would.
 - **Optionality is uniform across drive-point states.** Every state that
   carries quantities a sender may not measure (`WheelState`,
   `PropellerState`, `JetState`, `LegState`, `GenericState`) expresses

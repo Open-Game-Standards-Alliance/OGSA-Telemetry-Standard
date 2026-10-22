@@ -2,7 +2,7 @@
 
 The OGSA-TS transport is **plain UDP multicast**. At 60–120 Hz with sub-500-byte packets on a LAN or localhost, transport latency is a few hundred microseconds at most — negligible next to the game physics tick, motion cueing filters, and actuator response. A high-performance messaging layer would add a media driver process and client library to every integration for performance this use case cannot use. Plain UDP is trivial to ship in engine plugins and supports multicast, so multiple clients (dashboards, motion rigs, haptics, loggers) receive the same stream without extra ports or proxying.
 
-Cap'n Proto handles serialization (see [implementation-capnproto.md](implementation-capnproto.md)). An optional Aeron backend exists for extreme-rate scenarios (see the last section).
+Cap'n Proto handles serialization (see [implementation-capnproto.md](implementation-capnproto.md)).
 
 ## Wire format
 
@@ -286,7 +286,7 @@ The C API hides both layers from game code:
 typedef struct MotionTelemetryHandle MotionTelemetryHandle;
 typedef void (*TelemetryCallback)(void* userData);
 
-// Lifecycle — transportType: "udp" (default) or "aeron"
+// Lifecycle — transportType: "udp"
 MotionTelemetryHandle* motion_telemetry_create_sender(const char* transportType, const char* endpoint, int port);
 MotionTelemetryHandle* motion_telemetry_create_receiver(const char* transportType, const char* endpoint, int port);
 void motion_telemetry_destroy(MotionTelemetryHandle* handle);
@@ -316,7 +316,3 @@ const char* motion_telemetry_get_channel_unit(MotionTelemetryHandle* handle, con
 ```
 
 A sender loop is then just: declare once → `publish_discovery()` → set fields → `send()` at 60 Hz. Receivers register a callback and read raw and derived values through getters; channel names, units, and ranges arrive via discovery and are queryable by name.
-
-## Optional Aeron backend
-
-An `AeronTransport` implementing the same `Transport` interface sends the identical envelope bytes on two Aeron streams (`1000` discovery, `1001` motion) of a single channel, so receiver-side parsing is unchanged. It pulls ahead of plain UDP only when you need extreme message rates, strict ordering under heavy load, or back-pressure management across many subscribers — none of which are typical for game → motion software telemetry. See the [Aeron project](https://github.com/real-logic/aeron) if your deployment needs it; the default UDP path needs nothing beyond a socket.
