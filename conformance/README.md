@@ -7,6 +7,12 @@ by the reference implementation
 Every engine implementation (Unity, Godot, UE, …) validates against this
 corpus so their encoders provably agree on the wire.
 
+Every vector is in **canonical OGSA encoding**
+([implementation-capnproto.md § Encoding rules](../implementation-capnproto.md#encoding-rules-normative)):
+Cap'n Proto canonical form, zeroed unused bits, declared discriminants,
+and fixed field presence. The bytes are therefore a function of the
+message content alone, not of the encoder that produced them.
+
 ## Files
 
 - `manifest.json` — per-vector semantics: frame type, description, and the
@@ -36,7 +42,11 @@ exactly, no epsilon.
   against the manifest `input`. Guarded continuously by
   `Ogsa.Telemetry.Tests.ConformanceVectorTests`.
 - **Encode direction (senders)**: build each frame from the manifest
-  `input` and byte-compare with the `.hex` file.
+  `input` in canonical OGSA encoding and byte-compare with the `.hex`
+  file.
+- **Corpus self-check**: `python conformance/validate.py` (pycapnp)
+  decodes every vector against the manifest and verifies it is in
+  canonical OGSA encoding, independently of the generator.
 
 ## Regeneration
 
@@ -45,8 +55,9 @@ cd ogsa-ts-dotnet
 dotnet run --project src/ConformanceGen [outputDir]
 ```
 
-Regeneration is **deterministic**: with unchanged schema and serializer,
-`git diff` after regenerating must be empty. If bytes change, the change
+Regeneration is **deterministic**: with unchanged schema and manifest,
+`git diff` after regenerating must be empty — canonical OGSA encoding
+leaves the encoder no freedom. If bytes change, the change
 is a wire-format change — review it as such, then regenerate as part of
 that change. Schema evolution rules (unknown-field skipping) mean additions
 usually alter vectors legitimately: regenerate, review the diff, and note

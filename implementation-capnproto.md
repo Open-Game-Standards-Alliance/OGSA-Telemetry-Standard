@@ -13,6 +13,12 @@ The schema lives in [`ogsa_telemetry.capnp`](ogsa_telemetry.capnp) and defines t
 
 Compile it for C++:
 
+```bash
+capnp compile -oc++ ogsa_telemetry.capnp
+```
+
+This generates `ogsa_telemetry.capnp.h` and `ogsa_telemetry.c++`.
+
 ## Message framing (normative)
 
 A datagram's Cap'n Proto payload is in the standard serialization format:
@@ -21,15 +27,70 @@ count minus one, then one `u32` word-size per segment, padded with zeros
 to an **even u32 count** (so a 1-segment table is exactly one word — 8
 bytes — with no additional padding). Messages are single-segment in
 practice; multi-segment is legal but unnecessary at OGSA-TS frame sizes.
-This is the canonical capnproto framing: messages built by official
-capnp implementations (C++, Rust, Go, Python…) are valid OGSA-TS payloads
-as-is, and vice versa — verified against the conformance corpus.
+This is the standard Cap'n Proto stream framing: messages built by
+official capnp implementations (C++, Rust, Go, Python…) are valid OGSA-TS
+payloads as-is.
 
-```bash
-capnp compile -oc++ ogsa_telemetry.capnp
-```
+## Encoding rules (normative)
 
-This generates `ogsa_telemetry.capnp.h` and `ogsa_telemetry.c++`.
+These rules keep unused bits free for schema evolution and give every
+message exactly one encoding, so independent encoders can be compared
+byte for byte against the [conformance corpus](conformance/).
+
+An **optionality union** is a union whose first-declared variant is a
+`Void` default meaning "not provided" (`noDynamics`, `noRange`,
+`noSuspension`, `noDirection`, `noForce`, `noThrust`, `core`). Its
+default variant therefore has discriminant 0. `DrivePoint`,
+`DrivePointDescriptor` and `ChannelValue` carry the other unions.
+
+### Senders MUST
+
+- **Emit valid Cap'n Proto** for `ogsa_telemetry.capnp`, framed as above.
+- **Zero every unused bit.** Data bits that belong neither to a non-union
+  field, nor to the union discriminant, nor to the selected variant are
+  zero; pointer slots outside that layout are null. This covers struct
+  padding and the storage of unselected variants. v1.x fields are
+  allocated in currently unused bits, so a stray bit there decodes as a
+  value of a future field.
+- **Use declared discriminants only.** A union discriminant is the number
+  of a declared variant. A sender with nothing to report for an
+  optionality union leaves it zero-initialized, which selects the `Void`
+  default — every official Cap'n Proto builder does this automatically.
+
+### Senders SHOULD: canonical OGSA encoding
+
+Encode conformance (byte comparison with the corpus) requires these
+rules, and every reference encoder follows them.
+
+- **Canonical form**, as defined by the Cap'n Proto
+  [encoding spec](https://capnproto.org/encoding.html#canonicalization):
+  a single segment; objects in preorder; trailing zero data words and
+  trailing null pointers truncated (in a struct list, only when zero in
+  every element); a pointer to a zero-sized struct has offset −1.
+- **Field presence:**
+  - non-union `Text` fields are always written, `""` included;
+  - non-union struct fields are always written, all-zero included;
+  - list fields are written when non-empty and left null when empty;
+  - a union variant with a pointer payload is written exactly when it is
+    selected.
+
+Official Cap'n Proto libraries emit valid but generally non-canonical
+messages. To byte-match the corpus with one, set every non-union `Text`
+and struct field explicitly, initialize no empty lists, then canonicalize
+before framing — in C++ `capnp::MessageReader::canonicalize()`, or from
+the command line `capnp convert binary:canonical`. Canonical output has no
+segment table; prepend the one-segment table described above.
+
+### Receivers MUST
+
+- **Accept any valid Cap'n Proto message**, canonical or not, single- or
+  multi-segment.
+- **Read a null pointer as the field's default**: empty text, empty list,
+  all-zero struct.
+- **Never fail on an unknown discriminant.** For an optionality union,
+  treat it as the `Void` default (`noDirection` ≡ omnidirectional,
+  `noForce` ≡ force not available). For any other union, ignore the
+  union's content and keep the struct's non-union fields.
 
 ## The minimal sender
 
@@ -255,7 +316,7 @@ The equivalent self-describing-per-frame JSON would be several times larger on e
 
 - **Adding fields or variants (v1.x):** receivers built against an older schema skip unknown fields and unknown union discriminants silently — no coordination needed.
 - **Optional data:** optionality is carried by union discriminants (`noDynamics`/`core`/`noRange`/`noSuspension`/…), never by null struct fields — inline struct fields are not nullable in Cap'n Proto. Pointer fields (text, lists, union struct members like `range`, `suspension`) do have `hasX()` accessors; check them or the discriminant before use.
-- **Unset unions:** a sender that sets no variant leaves the discriminant **undefined** (distinct from explicitly setting the `Void` default). Receivers MUST treat an undefined discriminant exactly like the variant's `Void` default (`noDirection` ≡ omnidirectional, `noForce` ≡ force not available) — never as an error.
+- **Unset unions:** an optionality union a sender never touches is zero-initialized, which is its `Void` default. Receivers skip unknown discriminants as described in [Encoding rules](#encoding-rules-normative).
 - **Adding channels or drive points:** change the `DiscoveryFrame` and re-send it; receivers key by id and simply see new entries.
 - **Removing or renumbering ids:** never mid-session — ids are the contract between discovery and motion frames.
 

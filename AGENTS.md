@@ -23,13 +23,16 @@ what got fixed) lives exclusively in the knowledge base.**
   manifest, generated deterministically by
   [ogsa-ts-dotnet](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-dotnet)
   `src/ConformanceGen`. Regenerate there; a non-empty diff without a
-  deliberate wire change is a bug.
+  deliberate wire change is a bug. Every vector is in canonical OGSA
+  encoding (`implementation-capnproto.md` § Encoding rules);
+  `conformance/validate.py` checks that independently of the generator.
 
 - `ogsa_telemetry.capnp` is the single source of truth. A JSON
   mirror, if ever needed for tooling, must be *generated* from the capnp —
   never hand-maintained.
 - **Optionality rule**: optional measured quantities use a single unnamed
-  union with a `Void` default variant ("not provided"). Multi-field
+  union with a `Void` default variant ("not provided"), declared first so
+  it is discriminant 0 — a zero-initialized union means "not provided". Multi-field
   optionals bundle all-or-neither into a sub-struct (`WheelExtended`,
   `PropellerExtended`). Never introduce sentinel values — zeros are real
   readings; Cap'n Proto struct fields are inline and not nullable.

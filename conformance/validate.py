@@ -4,7 +4,12 @@ manifest-declared semantics, independently of any reference SDK.
 
 Uses pycapnp (official capnproto bindings) against ogsa_telemetry.capnp:
 the schema and the corpus are validated by a third implementation, not
-by the code that generated them. Exit 0 = all vectors verified.
+by the code that generated them. Each vector is also checked for
+canonical OGSA encoding (implementation-capnproto.md § Encoding rules):
+a schema-free re-encoder written from the Cap'n Proto canonicalization
+rules must reproduce the payload exactly, and a schema-driven walk checks
+unused bits, discriminants and field presence. Exit 0 = all vectors
+verified.
 
 Usage: python conformance/validate.py   (from the repo root)
 """
@@ -61,6 +66,18 @@ def main():
         with cls.from_bytes(payload) as msg:  # pycapnp wants a context manager
             check(f"{vec_id} semantics",
                   globals()["check_" + vec_id.replace("-", "_")](msg))
+        seg, problems = single_segment(payload)
+        if seg is not None:
+            try:
+                ok = canonicalize(seg) == seg
+                problems = [] if ok else ["differs from its canonical form"]
+            except EncodingError as exc:
+                problems = [str(exc)]
+        check(f"{vec_id} canonical form", not problems, "; ".join(problems))
+        if seg is not None:
+            problems = encoding_problems(schema, cls.schema.node, seg)
+            check(f"{vec_id} encoding rules", not problems,
+                  "; ".join(problems))
 
 
 def check_discovery_minimal(d):
@@ -128,6 +145,246 @@ def check_event_impact(e):
             and ev.intensity == 0.75 and ev.duration == 0.25
             and ev.which == "direction"
             and (ev.direction.x, ev.direction.y, ev.direction.z) == (-1, 0, 0))
+
+
+# ---------------------------------------------------------------------------
+# Canonical OGSA encoding (implementation-capnproto.md § Encoding rules)
+# ---------------------------------------------------------------------------
+
+MASK64 = (1 << 64) - 1
+
+
+class EncodingError(Exception):
+    pass
+
+
+def single_segment(payload):
+    """Split a framed payload into its one segment's u64 words."""
+    if len(payload) < 8 or len(payload) % 8:
+        return None, ["payload is not a whole number of words"]
+    count = int.from_bytes(payload[0:4], "little") + 1
+    if count != 1:
+        return None, [f"{count} segments; canonical form is single-segment"]
+    words = int.from_bytes(payload[4:8], "little")
+    body = payload[8:]
+    if words * 8 != len(body):
+        return None, [f"segment table says {words} words, payload has "
+                      f"{len(body) // 8}"]
+    return [int.from_bytes(body[i:i + 8], "little")
+            for i in range(0, len(body), 8)], []
+
+
+def pointer(seg, at):
+    """Decode the pointer at word `at`: None, or (kind, target, a, b)."""
+    w = seg[at]
+    if w == 0:
+        return None
+    kind = w & 3
+    if kind > 1:
+        raise EncodingError(f"word {at}: far/capability pointer")
+    off = (w & 0xFFFFFFFF) >> 2
+    if off & (1 << 29):
+        off -= 1 << 30
+    target = at + 1 + off
+    if kind == 0:  # struct: data words, pointer words
+        return 0, target, (w >> 32) & 0xFFFF, (w >> 48) & 0xFFFF
+    return 1, target, (w >> 32) & 7, w >> 35  # list: size code, count
+
+
+def struct_ptr(off, dw, pw):
+    return ((off << 2) & 0xFFFFFFFF) | (dw << 32) | (pw << 48)
+
+
+def list_ptr(off, size, count):
+    return 1 | ((off << 2) & 0xFFFFFFFF) | (size << 32) | (count << 35)
+
+
+def trim(words):
+    n = len(words)
+    while n and words[n - 1] == 0:
+        n -= 1
+    return n
+
+
+LIST_BITS = {0: 0, 1: 1, 2: 8, 3: 16, 4: 32, 5: 64}
+
+
+def canonicalize(seg):
+    """Schema-free canonical re-encoding, straight from the Cap'n Proto
+    encoding spec: preorder, single segment, trailing zero data words and
+    null pointers truncated (per struct list: across all elements),
+    zero-sized structs at offset -1."""
+    out = [0]
+    try:
+        _copy(seg, 0, out, 0)
+    except IndexError:
+        raise EncodingError("pointer out of bounds") from None
+    return out
+
+
+def _copy(seg, src_at, out, dst_at):
+    p = pointer(seg, src_at)
+    if p is None:
+        return
+    kind, t, a, b = p
+    if kind == 0:
+        data = seg[t:t + a]
+        ptrs = list(range(t + a, t + a + b))
+        dw = trim(data)
+        pw = trim([seg[i] for i in ptrs])
+        if dw == pw == 0:
+            out[dst_at] = struct_ptr(-1, 0, 0)
+            return
+        at = len(out)
+        out.extend(data[:dw])
+        out.extend([0] * pw)
+        out[dst_at] = struct_ptr(at - dst_at - 1, dw, pw)
+        for i in range(pw):
+            _copy(seg, ptrs[i], out, at + dw + i)
+        return
+    size, count = a, b
+    at = len(out)
+    if size == 7:  # composite: tag word, then elements
+        n = (seg[t] & 0xFFFFFFFF) >> 2
+        edw, epw = (seg[t] >> 32) & 0xFFFF, (seg[t] >> 48) & 0xFFFF
+        if n * (edw + epw) != count:
+            raise EncodingError(f"word {src_at}: composite list size mismatch")
+        elems = [t + 1 + i * (edw + epw) for i in range(n)]
+        dw = max((trim(seg[e:e + edw]) for e in elems), default=0)
+        pw = max((trim(seg[e + edw:e + edw + epw]) for e in elems), default=0)
+        out.append(n << 2 | dw << 32 | pw << 48)
+        for e in elems:
+            out.extend(seg[e:e + dw])
+            out.extend([0] * pw)
+        out[dst_at] = list_ptr(at - dst_at - 1, 7, n * (dw + pw))
+        for k, e in enumerate(elems):
+            for i in range(pw):
+                _copy(seg, e + edw + i, out, at + 1 + k * (dw + pw) + dw + i)
+        return
+    if size == 6:  # pointer list
+        out.extend([0] * count)
+        out[dst_at] = list_ptr(at - dst_at - 1, 6, count)
+        for i in range(count):
+            _copy(seg, t + i, out, at + i)
+        return
+    bits = count * LIST_BITS[size]
+    words = (bits + 63) // 64
+    raw = 0
+    for i in range(words):
+        raw |= seg[t + i] << (64 * i)
+    raw &= (1 << bits) - 1  # zero the padding past the last element
+    out.extend((raw >> (64 * i)) & MASK64 for i in range(words))
+    out[dst_at] = list_ptr(at - dst_at - 1, size, count)
+
+
+SLOT_BITS = {
+    "void": 0, "bool": 1, "int8": 8, "uint8": 8, "int16": 16, "uint16": 16,
+    "enum": 16, "int32": 32, "uint32": 32, "float32": 32, "int64": 64,
+    "uint64": 64, "float64": 64,
+}
+NO_DISCRIMINANT = 0xFFFF
+
+
+def struct_nodes(schema):
+    nodes = {}
+    for name in dir(schema):
+        try:
+            node = getattr(schema, name).schema.node
+        except AttributeError:
+            continue
+        if node.which == "struct":
+            nodes[node.id] = node
+    return nodes
+
+
+def encoding_problems(schema, root, seg):
+    """Unused bits zero, declared discriminants, field presence."""
+    nodes = struct_nodes(schema)
+    problems = []
+    try:
+        _walk_struct(nodes, root, seg, 0, root.displayName.split(":")[-1],
+                     problems)
+    except (EncodingError, IndexError) as exc:
+        problems.append(str(exc) or "pointer out of bounds")
+    return problems
+
+
+def _walk_struct(nodes, node, seg, at, path, problems):
+    p = pointer(seg, at)
+    if p is None or p[0] != 0:
+        raise EncodingError(f"{path}: expected a struct pointer")
+    _check_struct(nodes, node, seg, p[1], p[2], p[3], path, problems)
+
+
+def _check_struct(nodes, node, seg, base, dw, pw, path, problems):
+    s = node.struct
+    data = 0
+    for i in range(dw):
+        data |= seg[base + i] << (64 * i)
+    used, used_ptrs = 0, set()
+    which = None
+    if s.discriminantCount:
+        bit = s.discriminantOffset * 16
+        which = (data >> bit) & 0xFFFF
+        used |= 0xFFFF << bit
+        declared = {f.discriminantValue for f in s.fields
+                    if f.discriminantValue != NO_DISCRIMINANT}
+        if which not in declared:
+            problems.append(f"{path}: undeclared discriminant {which}")
+    for f in s.fields:
+        in_union = f.discriminantValue != NO_DISCRIMINANT
+        if in_union and f.discriminantValue != which:
+            continue
+        if f.which != "slot":
+            raise EncodingError(f"{path}.{f.name}: groups are not supported")
+        t = str(f.slot.type.which)
+        fpath = f"{path}.{f.name}"
+        if t in SLOT_BITS:
+            width = SLOT_BITS[t]
+            used |= ((1 << width) - 1) << (f.slot.offset * width)
+            continue
+        idx = f.slot.offset
+        used_ptrs.add(idx)
+        present = idx < pw and seg[base + dw + idx] != 0
+        ptr_at = base + dw + idx
+        if t == "list":
+            if present:
+                _check_list(nodes, f.slot.type.list.elementType, seg,
+                            ptr_at, fpath, problems)
+            continue
+        if not present:
+            problems.append(f"{fpath}: must be written"
+                            + (" (selected variant)" if in_union else ""))
+            continue
+        if t == "struct":
+            _walk_struct(nodes, nodes[f.slot.type.struct.typeId], seg,
+                         ptr_at, fpath, problems)
+        elif t != "text":
+            raise EncodingError(f"{fpath}: unsupported field type {t}")
+    stray = data & ~used & ((1 << (64 * dw)) - 1)
+    if stray:
+        problems.append(f"{path}: non-zero unused data bits "
+                        f"(mask {stray:#x})")
+    for i in range(pw):
+        if i not in used_ptrs and seg[base + dw + i] != 0:
+            problems.append(f"{path}: pointer slot {i} outside the layout "
+                            "is not null")
+
+
+def _check_list(nodes, elem_type, seg, at, path, problems):
+    kind, t, size, count = pointer(seg, at)
+    if kind != 1:
+        raise EncodingError(f"{path}: expected a list pointer")
+    if elem_type.which != "struct" or size != 7:
+        raise EncodingError(f"{path}: unsupported list element type")
+    n = (seg[t] & 0xFFFFFFFF) >> 2
+    if n == 0:
+        problems.append(f"{path}: empty list must be null")
+    edw, epw = (seg[t] >> 32) & 0xFFFF, (seg[t] >> 48) & 0xFFFF
+    node = nodes[elem_type.struct.typeId]
+    for i in range(n):
+        _check_struct(nodes, node, seg, t + 1 + i * (edw + epw), edw, epw,
+                      f"{path}[{i}]", problems)
 
 
 expected_type = {
