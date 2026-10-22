@@ -17,7 +17,11 @@ message content alone, not of the encoder that produced them.
 
 - `manifest.json` — per-vector semantics: frame type, description, and the
   `input` object (the semantic content; serves as encode source **and**
-  decode expectation)
+  decode expectation). An input lists every field that differs from its
+  default; an omitted field is default (0, false, `""`, empty list,
+  all-default struct, first enumerant, first union variant). Union
+  variants appear by name; a `Void` variant other than the first appears
+  with the value `null`
 - `vectors/<id>.hex` — the raw datagram **including the 8-byte `OMT1`
   envelope**, lowercase hex wrapped at 64 characters
 
@@ -29,7 +33,7 @@ exactly, no epsilon.
 | id | covers |
 |---|---|
 | `discovery-minimal` | smallest valid DiscoveryFrame (one primary object) |
-| `discovery-channels` | channels with units, ranges, unitless boolean |
+| `discovery-channels` | channels with units, ranges, a description, unitless boolean |
 | `motion-pose` | pose core: position + identity quaternion |
 | `motion-channels` | pose + number/boolean channel values by discovery id |
 | `motion-multi` | two objects, primary first |
@@ -45,8 +49,8 @@ exactly, no epsilon.
   `input` in canonical OGSA encoding and byte-compare with the `.hex`
   file.
 - **Corpus self-check**: `python conformance/validate.py` (pycapnp)
-  decodes every vector against the manifest and verifies it is in
-  canonical OGSA encoding, independently of the generator.
+  decodes every vector, verifies it equals its manifest input exactly
+  and is in canonical OGSA encoding, independently of the generator.
 
 ## Regeneration
 

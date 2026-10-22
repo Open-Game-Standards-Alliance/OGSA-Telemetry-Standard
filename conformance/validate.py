@@ -58,7 +58,9 @@ def main():
         "motion-channels", "motion-multi", "motion-bodydynamics",
         "event-impact"], str(ids))
 
-    for vec_id in ids:
+    nodes = struct_nodes(schema)
+    for vec in manifest["vectors"]:
+        vec_id = vec["id"]
         ft, payload = load(vec_id)
         check(f"{vec_id} envelope",
               ft == expected_type[vec_id], f"frame type {ft}")
@@ -66,6 +68,11 @@ def main():
         with cls.from_bytes(payload) as msg:  # pycapnp wants a context manager
             check(f"{vec_id} semantics",
                   globals()["check_" + vec_id.replace("-", "_")](msg))
+            problems = []
+            matches_input(nodes, cls.schema.node, msg, vec["input"],
+                          frame_type_names[ft], problems)
+            check(f"{vec_id} matches manifest input exactly", not problems,
+                  "; ".join(problems))
         seg, problems = single_segment(payload)
         if seg is not None:
             try:
@@ -286,13 +293,14 @@ NO_DISCRIMINANT = 0xFFFF
 
 
 def struct_nodes(schema):
+    """Top-level struct and enum nodes by id."""
     nodes = {}
     for name in dir(schema):
         try:
             node = getattr(schema, name).schema.node
         except AttributeError:
             continue
-        if node.which == "struct":
+        if node.which in ("struct", "enum"):
             nodes[node.id] = node
     return nodes
 
@@ -385,6 +393,65 @@ def _check_list(nodes, elem_type, seg, at, path, problems):
     for i in range(n):
         _check_struct(nodes, node, seg, t + 1 + i * (edw + epw), edw, epw,
                       f"{path}[{i}]", problems)
+
+
+# ---------------------------------------------------------------------------
+# Manifest completeness: a manifest input lists every field that differs from
+# its default, so the decoded message must equal it exactly — what lets an
+# independent encoder rebuild each vector from the manifest alone.
+# ---------------------------------------------------------------------------
+
+def matches_input(nodes, node, reader, expected, path, problems):
+    fields = list(node.struct.fields)
+    known = {f.name for f in fields}
+    for key in expected:
+        if key not in known:
+            problems.append(f"{path}.{key}: not a field of the schema")
+    union = [f for f in fields if f.discriminantValue != NO_DISCRIMINANT]
+    variant = None
+    if union:
+        named = [f.name for f in union if f.name in expected]
+        if len(named) > 1:
+            problems.append(f"{path}: input names several variants {named}")
+        variant = named[0] if named else min(
+            union, key=lambda f: f.discriminantValue).name
+        try:
+            which = str(reader.which)
+        except capnp.KjException:  # undeclared discriminant
+            which = "<undeclared>"
+        if which != variant:
+            problems.append(f"{path}: variant {which}, input says {variant}")
+            return
+    for f in fields:
+        if f.discriminantValue != NO_DISCRIMINANT and f.name != variant:
+            continue
+        t = str(f.slot.type.which)
+        fpath = f"{path}.{f.name}"
+        if t == "void":
+            continue
+        actual = getattr(reader, f.name)
+        if t == "struct":
+            matches_input(nodes, nodes[f.slot.type.struct.typeId], actual,
+                          expected.get(f.name, {}), fpath, problems)
+        elif t == "list":
+            items = expected.get(f.name, [])
+            if len(actual) != len(items):
+                problems.append(f"{fpath}: {len(actual)} elements, "
+                                f"input has {len(items)}")
+                continue
+            elem = nodes[f.slot.type.list.elementType.struct.typeId]
+            for i, (a, e) in enumerate(zip(actual, items)):
+                matches_input(nodes, elem, a, e, f"{fpath}[{i}]", problems)
+        else:
+            if t == "enum":
+                enum = nodes[f.slot.type.enum.typeId].enum
+                default = enum.enumerants[0].name
+                actual = str(actual)
+            else:
+                default = "" if t == "text" else False if t == "bool" else 0
+            want = expected.get(f.name, default)
+            if actual != want:
+                problems.append(f"{fpath}: {actual!r}, input says {want!r}")
 
 
 expected_type = {

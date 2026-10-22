@@ -1,11 +1,12 @@
 {
-  "corpusVersion": 3,
+  "corpusVersion": 4,
   "schemaVersion": 1,
   "envelope": {
     "magic": "OMT1",
     "headerBytes": 8
   },
   "floatRule": "all floats in this corpus are float32-exact; implementations compare exactly",
+  "inputRule": "each input lists every field that differs from its default; omitted fields are default (0, false, \u0022\u0022, empty list, all-default struct, first enumerant, first union variant)",
   "vectors": [
     {
       "id": "discovery-minimal",
@@ -36,15 +37,23 @@
       "id": "discovery-channels",
       "file": "vectors/discovery-channels.hex",
       "frameType": "discovery",
-      "description": "Object with three channels incl. ranges and a unitless boolean channel",
+      "description": "Object with three channels incl. ranges, a description and a unitless boolean channel",
       "input": {
         "schemaVersion": 1,
         "gameName": "conformance",
         "sessionStartUnixUs": 1730000000000000,
+        "environment": {
+          "airDensity": 1.25,
+          "temperature": 20,
+          "pressure": 1,
+          "gravity": 9.5,
+          "medium": "asphalt"
+        },
         "objects": [
           {
             "name": "demo_car",
             "type": "vehicle",
+            "typeLabel": "conformance car",
             "primary": true,
             "channels": [
               {
@@ -54,21 +63,20 @@
                 "range": {
                   "min": 0,
                   "max": 9000
-                }
+                },
+                "description": "Engine revolutions per minute"
               },
               {
                 "id": 1,
                 "name": "vehicle.speed",
                 "unit": "m/s",
                 "range": {
-                  "min": 0,
                   "max": 30
                 }
               },
               {
                 "id": 2,
-                "name": "lights.headlights",
-                "unit": ""
+                "name": "lights.headlights"
               }
             ]
           }
@@ -91,9 +99,6 @@
               "z": -3.75
             },
             "orientation": {
-              "x": 0,
-              "y": 0,
-              "z": 0,
               "w": 1
             }
           }
@@ -116,14 +121,10 @@
               "z": 3
             },
             "orientation": {
-              "x": 0,
-              "y": 1,
-              "z": 0,
-              "w": 0
+              "y": 1
             },
             "channels": [
               {
-                "id": 0,
                 "number": 3250.5
               },
               {
@@ -150,14 +151,9 @@
           {
             "name": "player_car",
             "position": {
-              "x": 1,
-              "y": 0,
-              "z": 0
+              "x": 1
             },
             "orientation": {
-              "x": 0,
-              "y": 0,
-              "z": 0,
               "w": 1
             }
           },
@@ -169,10 +165,7 @@
               "z": 2.5
             },
             "orientation": {
-              "x": 0,
-              "y": 1,
-              "z": 0,
-              "w": 0
+              "y": 1
             }
           }
         ]
@@ -194,9 +187,7 @@
               "z": -2.5
             },
             "orientation": {
-              "x": 0,
               "y": 0.5,
-              "z": 0,
               "w": 0.875
             },
             "bodyDynamics": {
@@ -229,9 +220,7 @@
             "intensity": 0.75,
             "duration": 0.25,
             "direction": {
-              "x": -1,
-              "y": 0,
-              "z": 0
+              "x": -1
             }
           }
         ]
