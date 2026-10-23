@@ -1,5 +1,10 @@
 # Open Game Standards Alliance: OGSA Telemetry Standard (OGSA-TS)
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/logo/telemetry-standard-dark.svg">
+  <img align="right" width="120" src="assets/logo/telemetry-standard.svg" alt="OGSA Telemetry Standard logo">
+</picture>
+
 The OGSA Telemetry Standard (OGSA-TS) defines a standardised method and
 format for games and simulators to broadcast live telemetry to devices and
 software on the user's local area network (LAN).
@@ -53,6 +58,18 @@ Sponsorship goes to the primary maintainer and helps
 fund ongoing design, validation, reference implementations, 
 and community coordination. There is currently no separate 
 legal entity or project bank account.
+
+## Logo
+
+The OGSA-TS logo is in [assets/logo](assets/logo), as SVG and as 512 px
+and 1024 px PNG:
+
+| File | Use on |
+| --- | --- |
+| `telemetry-standard` | Light backgrounds (transparent) |
+| `telemetry-standard-dark` | Dark backgrounds (transparent, light outlines) |
+| `telemetry-standard-white` | Anywhere a solid square is needed (white background) |
+| `telemetry-standard-dark-black` | Anywhere a solid square is needed (black background), e.g. app and plugin icons |
 
 ## Implementation
 
