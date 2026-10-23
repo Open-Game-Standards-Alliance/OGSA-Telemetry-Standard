@@ -123,3 +123,37 @@ window the consumer may render continuously. `direction` is optional,
 in the body frame (C-1) of the associated object, and points **toward the
 source** of the stimulus — a hit from the left has −x. Event names use
 dot-namespaced strings ratified like channel names (CHANNELS.md).
+
+## C-11 Pause
+
+A pause (pause menu, sim pause, photo mode, any state where simulation
+time stops for the player) is not the end of a session. Without a signal,
+a paused sender is indistinguishable from a dead one, and a motion rig
+holds whatever attitude the game froze in.
+
+Senders:
+
+- A sender that can tell when its game is paused SHOULD declare the
+  ratified boolean channel `session.paused` (CHANNELS.md) on its primary
+  object and carry its value in **every** motion frame, so a receiver
+  that joins mid-pause sees it on the first frame.
+- While paused, a sender MUST keep sending: discovery on its normal
+  re-send cadence and motion frames at its normal rate, under the same
+  session anchor, with timestamps that keep advancing (C-8 — they are
+  wall-clock, not game time). Pose carries the frozen values.
+- While paused, a sender SHOULD send `noDynamics`: no specific force or
+  angular rates are measured while the simulation is stopped, and a
+  derivative taken across the pause boundary is meaningless.
+- A sender that cannot tell when its game is paused does not declare the
+  channel.
+
+Receivers:
+
+- While `session.paused` is true, receivers SHOULD bring actuators to
+  rest at a gentle, receiver-chosen rate (motion platforms toward their
+  neutral or park position) and SHOULD stop rendering haptic output; on
+  resume they SHOULD return to the live values without a step.
+- A pause MUST NOT count toward staleness or session end
+  (implementation-udp.md, Liveness): the sender is still streaming.
+- An undeclared `session.paused` means the sender does not report
+  pauses, never "paused".

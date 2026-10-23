@@ -49,7 +49,7 @@ All values are defaults — every implementation should make endpoint and mode c
 | Frame | When to send |
 |---|---|
 | `DiscoveryFrame` | session start, on any declared change (vehicle swap, channel set change, medium change), and **re-sent every 2 seconds** |
-| `MotionFrame` | every telemetry tick, ~60 Hz |
+| `MotionFrame` | every telemetry tick, ~60 Hz — **including while the game is paused** (CONVENTIONS C-11) |
 
 The 2-second discovery re-send bounds late-joiner wait time at ~1.6 kbit/s of extra traffic — negligible, and it heals any lost discovery packet. Motion frames are fire-and-forget: receivers hold the last known pose and interpolate across occasional loss.
 
@@ -215,6 +215,9 @@ private:
 The sender gives no explicit goodbye, so receivers detect liveness from
 the stream itself:
 
+- A paused game keeps streaming, with `session.paused` set (CONVENTIONS
+  C-11), so a pause never trips the rules below: silence means the
+  sender stopped, not that the player paused.
 - Motion frames are the heartbeat. If no motion frame arrives for ~5×
   the expected tick interval (or 1 s when the rate is unknown), mark the
   session stale: hold the last pose, stop driving actuators toward new
@@ -261,6 +264,11 @@ Operational notes:
 
 - **Socket hygiene**: send from one dedicated thread or the engine's network
   tick; never block the render or physics thread on socket calls.
+- **Keep ticking while paused**: drive the sender from a real-time clock
+  and an update that runs while the game is paused (Unity `LateUpdate`
+  with unscaled time, Unreal `bTickEvenWhenPaused`, Godot's
+  `SceneTree.ProcessFrame`). A sender ticked on game time goes silent on
+  pause, which receivers read as a dead session (CONVENTIONS C-11).
 - **Windows Firewall**: the first multicast send may prompt — document it for
   end users.
 

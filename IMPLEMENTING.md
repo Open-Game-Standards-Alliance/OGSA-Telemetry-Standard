@@ -30,7 +30,9 @@ this repo; the reference implementations and engine plugins are siblings.
    that stay stable for the session
 2. **Motion** — `MotionFrame`s at your telemetry rate (60–120 Hz
    typical): object name, position + unit quaternion in the CONVENTIONS
-   world frame, channel values keyed by discovery ids
+   world frame, channel values keyed by discovery ids. Keep sending while
+   the game is paused, and report the pause with `session.paused`
+   (CONVENTIONS C-11)
 3. **Events (optional)** — `EventFrame`s on gameplay stimuli, re-carried
    ~100 ms for loss tolerance, session-monotonic ids
 4. **Envelope** — every datagram is `OMT1` + frame-type byte + reserved

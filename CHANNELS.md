@@ -91,6 +91,7 @@ These families are annex candidates once naming stabilizes across ≥2 games
 | `aids.esp` | boolean | — | Stability control currently active |
 | `fuel.level` | number | — | Remaining fuel/energy fraction, 0..1 (C-3) |
 | `fuel.rate` | number | `m3/s` | Current consumption rate (L/h ÷ 3.6e6) |
+| `session.paused` | boolean | — | Simulation paused for the player (pause menu, sim pause). Carried in every motion frame; senders keep streaming while paused (C-11). Evidence: MSFS 2024 (SimConnect pause state, reference-msfs2024.md), X-Plane `sim/time/paused`, Assetto Corsa / ACC shared-memory status `AC_PAUSE` |
 
 Deliberately out of scope for now: race state (`race.lap`,
 `race.position`, lap timing) — recurring, but domain-specific enough to go
