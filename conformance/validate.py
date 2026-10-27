@@ -53,10 +53,11 @@ def main():
         sys.exit(1)
     check("manifest schemaVersion 1", manifest["schemaVersion"] == 1)
     ids = [v["id"] for v in manifest["vectors"]]
-    check("seven known vectors", ids == [
+    check("ten known vectors", ids == [
         "discovery-minimal", "discovery-channels", "motion-pose",
         "motion-channels", "motion-multi", "motion-bodydynamics",
-        "event-impact"], str(ids))
+        "event-impact", "discovery-gravity-vector", "motion-local-gravity",
+        "motion-local-gravity-zero"], str(ids))
 
     nodes = struct_nodes(schema)
     for vec in manifest["vectors"]:
@@ -66,8 +67,11 @@ def main():
               ft == expected_type[vec_id], f"frame type {ft}")
         cls = getattr(schema, frame_type_names[ft])
         with cls.from_bytes(payload) as msg:  # pycapnp wants a context manager
-            check(f"{vec_id} semantics",
-                  globals()["check_" + vec_id.replace("-", "_")](msg))
+            try:
+                ok, detail = globals()["check_" + vec_id.replace("-", "_")](msg), ""
+            except capnp.KjException as exc:  # e.g. undeclared discriminant
+                ok, detail = False, str(exc).splitlines()[0]
+            check(f"{vec_id} semantics", ok, detail)
             problems = []
             matches_input(nodes, cls.schema.node, msg, vec["input"],
                           frame_type_names[ft], problems)
@@ -152,6 +156,34 @@ def check_event_impact(e):
             and ev.intensity == 0.75 and ev.duration == 0.25
             and ev.which == "direction"
             and (ev.direction.x, ev.direction.y, ev.direction.z) == (-1, 0, 0))
+
+
+def check_discovery_gravity_vector(d):
+    env = d.environment
+    if env.which != "gravityVector":
+        return False
+    g = env.gravityVector
+    return (env.medium == "vacuum" and (g.x, g.y, g.z) == (3, -4, 0)
+            and env.gravity == (g.x ** 2 + g.y ** 2 + g.z ** 2) ** 0.5
+            and d.objects[0].type == "spacecraft")
+
+
+def check_motion_local_gravity(m):
+    o = m.objects[0]
+    if o.which != "bodyDynamics" or o.localGravity.which != "vector":
+        return False
+    g, f = o.localGravity.vector, o.bodyDynamics.specificForce
+    # identity orientation: specific force = a − g with a = 0 (C-12)
+    return (m.timestamp == 5.25 and (g.x, g.y, g.z) == (-2, 0, 0)
+            and (f.x, f.y, f.z) == (-g.x, -g.y, -g.z))
+
+
+def check_motion_local_gravity_zero(m):
+    o = m.objects[0]
+    if o.which != "noDynamics" or o.localGravity.which != "vector":
+        return False
+    g = o.localGravity.vector
+    return m.timestamp == 6.5 and (g.x, g.y, g.z) == (0, 0, 0)
 
 
 # ---------------------------------------------------------------------------
@@ -293,15 +325,22 @@ NO_DISCRIMINANT = 0xFFFF
 
 
 def struct_nodes(schema):
-    """Top-level struct and enum nodes by id."""
+    """Top-level struct and enum nodes by id, plus the group nodes of named
+    unions (laid out in their parent's data and pointer sections)."""
     nodes = {}
     for name in dir(schema):
         try:
-            node = getattr(schema, name).schema.node
+            decl = getattr(schema, name).schema
+            node = decl.node
         except AttributeError:
             continue
         if node.which in ("struct", "enum"):
             nodes[node.id] = node
+        if node.which == "struct":
+            for f in node.struct.fields:
+                if f.which == "group":
+                    group = decl.fields[f.name].schema.node
+                    nodes[group.id] = group
     return nodes
 
 
@@ -325,10 +364,25 @@ def _walk_struct(nodes, node, seg, at, path, problems):
 
 
 def _check_struct(nodes, node, seg, base, dw, pw, path, problems):
-    s = node.struct
     data = 0
     for i in range(dw):
         data |= seg[base + i] << (64 * i)
+    used, used_ptrs = _check_fields(nodes, node, seg, base, dw, pw, data,
+                                    path, problems)
+    stray = data & ~used & ((1 << (64 * dw)) - 1)
+    if stray:
+        problems.append(f"{path}: non-zero unused data bits "
+                        f"(mask {stray:#x})")
+    for i in range(pw):
+        if i not in used_ptrs and seg[base + dw + i] != 0:
+            problems.append(f"{path}: pointer slot {i} outside the layout "
+                            "is not null")
+
+
+def _check_fields(nodes, node, seg, base, dw, pw, data, path, problems):
+    """Checks one struct's (or named union's) fields over its parent's
+    sections; returns the data bits and pointer slots its layout uses."""
+    s = node.struct
     used, used_ptrs = 0, set()
     which = None
     if s.discriminantCount:
@@ -343,10 +397,16 @@ def _check_struct(nodes, node, seg, base, dw, pw, path, problems):
         in_union = f.discriminantValue != NO_DISCRIMINANT
         if in_union and f.discriminantValue != which:
             continue
-        if f.which != "slot":
-            raise EncodingError(f"{path}.{f.name}: groups are not supported")
-        t = str(f.slot.type.which)
         fpath = f"{path}.{f.name}"
+        if f.which == "group":
+            if in_union:
+                raise EncodingError(f"{fpath}: group inside a union")
+            g_used, g_ptrs = _check_fields(nodes, nodes[f.group.typeId], seg,
+                                           base, dw, pw, data, fpath, problems)
+            used |= g_used
+            used_ptrs |= g_ptrs
+            continue
+        t = str(f.slot.type.which)
         if t in SLOT_BITS:
             width = SLOT_BITS[t]
             used |= ((1 << width) - 1) << (f.slot.offset * width)
@@ -369,14 +429,7 @@ def _check_struct(nodes, node, seg, base, dw, pw, path, problems):
                          ptr_at, fpath, problems)
         elif t != "text":
             raise EncodingError(f"{fpath}: unsupported field type {t}")
-    stray = data & ~used & ((1 << (64 * dw)) - 1)
-    if stray:
-        problems.append(f"{path}: non-zero unused data bits "
-                        f"(mask {stray:#x})")
-    for i in range(pw):
-        if i not in used_ptrs and seg[base + dw + i] != 0:
-            problems.append(f"{path}: pointer slot {i} outside the layout "
-                            "is not null")
+    return used, used_ptrs
 
 
 def _check_list(nodes, elem_type, seg, at, path, problems):
@@ -425,8 +478,12 @@ def matches_input(nodes, node, reader, expected, path, problems):
     for f in fields:
         if f.discriminantValue != NO_DISCRIMINANT and f.name != variant:
             continue
-        t = str(f.slot.type.which)
         fpath = f"{path}.{f.name}"
+        if f.which == "group":  # named union: same rules, nested input
+            matches_input(nodes, nodes[f.group.typeId], getattr(reader, f.name),
+                          expected.get(f.name, {}), fpath, problems)
+            continue
+        t = str(f.slot.type.which)
         if t == "void":
             continue
         actual = getattr(reader, f.name)
@@ -458,6 +515,8 @@ expected_type = {
     "discovery-minimal": 0, "discovery-channels": 0,
     "motion-pose": 1, "motion-channels": 1, "motion-multi": 1,
     "motion-bodydynamics": 1, "event-impact": 2,
+    "discovery-gravity-vector": 0, "motion-local-gravity": 1,
+    "motion-local-gravity-zero": 1,
 }
 
 

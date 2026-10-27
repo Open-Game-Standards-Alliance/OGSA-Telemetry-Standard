@@ -39,7 +39,8 @@ byte for byte against the [conformance corpus](conformance/).
 
 An **optionality union** is a union whose first-declared variant is a
 `Void` default meaning "not provided" (`noDynamics`, `noRange`,
-`noSuspension`, `noDirection`, `noForce`, `noThrust`, `core`). Its
+`noSuspension`, `noDirection`, `noForce`, `noThrust`, `core`,
+`noGravityVector`, `noLocalGravity`). Its
 default variant therefore has discriminant 0. `DrivePoint`,
 `DrivePointDescriptor` and `ChannelValue` carry the other unions.
 

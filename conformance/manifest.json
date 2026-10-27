@@ -1,5 +1,5 @@
 {
-  "corpusVersion": 4,
+  "corpusVersion": 5,
   "schemaVersion": 1,
   "envelope": {
     "magic": "OMT1",
@@ -221,6 +221,92 @@
             "duration": 0.25,
             "direction": {
               "x": -1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "discovery-gravity-vector",
+      "file": "vectors/discovery-gravity-vector.hex",
+      "frameType": "discovery",
+      "description": "Environment gravityVector union variant: tilted session gravity, scalar gravity = its magnitude (CONVENTIONS C-12)",
+      "input": {
+        "schemaVersion": 1,
+        "gameName": "conformance",
+        "sessionStartUnixUs": 1730000000000000,
+        "environment": {
+          "airDensity": 1.25,
+          "temperature": 20,
+          "pressure": 1,
+          "gravity": 5,
+          "medium": "vacuum",
+          "gravityVector": {
+            "x": 3,
+            "y": -4
+          }
+        },
+        "objects": [
+          {
+            "name": "obj",
+            "type": "spacecraft",
+            "primary": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "motion-local-gravity",
+      "file": "vectors/motion-local-gravity.hex",
+      "frameType": "motion",
+      "description": "MotionObject localGravity.vector with bodyDynamics: specific force is the reaction to the object\u0027s effective gravity (CONVENTIONS C-12)",
+      "input": {
+        "timestamp": 5.25,
+        "objects": [
+          {
+            "name": "obj",
+            "position": {
+              "x": 12,
+              "y": 0.5,
+              "z": -4
+            },
+            "orientation": {
+              "w": 1
+            },
+            "bodyDynamics": {
+              "specificForce": {
+                "x": 2
+              }
+            },
+            "localGravity": {
+              "vector": {
+                "x": -2
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "motion-local-gravity-zero",
+      "file": "vectors/motion-local-gravity-zero.hex",
+      "frameType": "motion",
+      "description": "MotionObject localGravity.vector selected with an all-zero vector: weightless, distinct from noLocalGravity (CONVENTIONS C-12)",
+      "input": {
+        "timestamp": 6.5,
+        "objects": [
+          {
+            "name": "obj",
+            "position": {
+              "x": 1,
+              "y": 2,
+              "z": 3
+            },
+            "orientation": {
+              "w": 1
+            },
+            "localGravity": {
+              "vector": {}
             }
           }
         ]

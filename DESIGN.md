@@ -116,8 +116,10 @@ discovery re-send.
 - `gameName`, `sessionStartUnixUs`: wall-clock anchor; frame timestamps are
   seconds relative to it.
 - `environment`: ambient conditions of the simulation medium (air density,
-  temperature, pressure, gravity, and the dominant medium,
-  `ContactMedium`).
+  temperature, pressure, gravity magnitude with an optional world-frame
+  gravity vector, and the dominant medium, `ContactMedium`). Objects whose
+  gravity differs per position or per frame carry `localGravity` in the
+  motion frame instead (CONVENTIONS C-12).
 - `objects`: one `ObjectDescriptor` per streamed object (the `primary`
   flag marks the reference object). Each carries identity (`name`, `type`,
   `location`; `type` is a ratified `ObjectType` enum plus optional
@@ -237,7 +239,8 @@ channels if a game ever exposes it.
   `kinematics` (velocity + acceleration) or body-frame `bodyDynamics`
   (specific force + angular rates, the accelerometer-class source pattern
   and the direct input of washout cueing). Receivers convert between the
-  two using orientation. Absence is the union's `Void` default (Cap'n Proto
+  two using orientation and the object's effective gravity (CONVENTIONS
+  C-12). Absence is the union's `Void` default (Cap'n Proto
   struct fields are inline, not nullable); there are no sentinels, and
   zeros are real readings.
 - **Discovery re-send on change.** Vehicle swap, channel set change, or medium

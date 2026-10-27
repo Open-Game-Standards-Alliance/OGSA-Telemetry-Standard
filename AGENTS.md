@@ -34,7 +34,9 @@ what got fixed) lives exclusively in the knowledge base.**
   union with a `Void` default variant ("not provided"), declared first so
   it is discriminant 0 — a zero-initialized union means "not provided". Multi-field
   optionals bundle all-or-neither into a sub-struct (`WheelExtended`,
-  `PropellerExtended`). Never introduce sentinel values — zeros are real
+  `PropellerExtended`). A struct whose unnamed union is already taken
+  uses a named union of the same shape (`MotionObject.localGravity`).
+  Never introduce sentinel values — zeros are real
   readings; Cap'n Proto struct fields are inline and not nullable.
 - **Evolution**: adding fields, enum values, or union variants is v1.x-safe
   (unknown-field/unknown-discriminant skipping); renaming or renumbering

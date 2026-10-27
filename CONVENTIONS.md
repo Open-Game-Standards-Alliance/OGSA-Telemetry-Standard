@@ -14,6 +14,7 @@ is a spec change (see DESIGN.md, Evolution).
 - **Object-local frame** — one sender-chosen origin per object (typically
   the CG), used by drive-point offsets and named points; declared via
   `referencePoint` + `namedPoints`.
+- **Down** — unless declared otherwise (C-12), gravity acts along world −Y.
 
 ## C-2 Orientation
 
@@ -157,3 +158,53 @@ Receivers:
   (implementation-udp.md, Liveness): the sender is still streaming.
 - An undeclared `session.paused` means the sender does not report
   pauses, never "paused".
+
+## C-12 Gravity
+
+Gravity is a vector **g** in the world frame (C-1), m/s², pointing the way
+gravity pulls (toward the attracting mass). Each object has one
+**effective gravity** per motion frame, resolved in this order:
+
+1. `MotionObject.localGravity.vector`, when selected in that frame;
+2. otherwise `Environment.gravityVector`, when selected;
+3. otherwise (0, −`Environment.gravity`, 0).
+
+A zero vector is a real value (weightless), never "not provided"; absence
+is always the `Void` default of the union.
+
+Dynamics are defined against the effective gravity:
+
+- `kinematics.acceleration` is coordinate acceleration **a**, gravity
+  excluded.
+- `bodyDynamics.specificForce` is **f** = q⁻¹ · (**a** − **g**), what an
+  accelerometer at the reference point reads. At rest under default
+  gravity it is (0, +`gravity`, 0) in the body frame of a level object.
+- Receivers convert between the two with **a** = q · **f** + **g**, and
+  remove the gravity reaction from specific force with
+  q⁻¹ · **a** = **f** + q⁻¹ · **g**.
+
+Senders:
+
+- `Environment.gravity` is always the magnitude of the session gravity,
+  also when `gravityVector` is set (|`gravityVector`|), so a receiver that
+  reads only the scalar still has the right value.
+- A sender whose session gravity does not point along world −Y sets
+  `Environment.gravityVector`. Discovery is re-sent when it changes (as
+  for any environment change), so it suits values that change rarely.
+- A sender whose gravity varies by object position or changes faster than
+  discovery re-sends (planet surfaces, rotating habitats, multi-body
+  scenes) sets `localGravity.vector` on the
+  affected objects. The field describes its own frame only: a sender
+  using it carries it in **every** motion frame for that object, so a
+  receiver that joins mid-session sees it on the first frame.
+- A sender reporting `bodyDynamics` computes specific force against the
+  same effective gravity it declares.
+
+Receivers:
+
+- Resolve the effective gravity per object and frame as above. A
+  receiver that does not read `localGravity` or `gravityVector` falls
+  back to the scalar along world −Y.
+- Receivers that present acceleration in multiples of g choose their own
+  reference (standard gravity 9.80665 m/s² or the effective magnitude);
+  the wire stays in m/s² (C-3).

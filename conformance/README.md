@@ -21,7 +21,8 @@ message content alone, not of the encoder that produced them.
   default; an omitted field is default (0, false, `""`, empty list,
   all-default struct, first enumerant, first union variant). Union
   variants appear by name; a `Void` variant other than the first appears
-  with the value `null`
+  with the value `null`; a named union (`localGravity`) appears as an
+  object under its name, holding its variant the same way
 - `vectors/<id>.hex` — the raw datagram **including the 8-byte `OMT1`
   envelope**, lowercase hex wrapped at 64 characters
 
@@ -39,6 +40,9 @@ exactly, no epsilon.
 | `motion-multi` | two objects, primary first |
 | `motion-bodydynamics` | pose + `bodyDynamics` union: accelerometer-style specific force, C-4 angular velocity |
 | `event-impact` | `body.impact` with intensity, duration, direction |
+| `discovery-gravity-vector` | `Environment.gravityVector` union: tilted session gravity, scalar `gravity` = its magnitude (C-12) |
+| `motion-local-gravity` | `MotionObject.localGravity.vector` (named union) with `bodyDynamics` reacting to it (C-12) |
+| `motion-local-gravity-zero` | `localGravity.vector` selected with an all-zero vector: weightless, distinct from `noLocalGravity` |
 
 ## Using the corpus
 

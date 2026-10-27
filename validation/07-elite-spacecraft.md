@@ -30,6 +30,7 @@ is an accelerometer-class source.
 | `Speed` | `vehicle.speed` (m/s) | annex |
 | SRV `*` | same fields on the second object | direct |
 | (no pose in source) | `position`/`orientation` fused from Status.json — heading, and lat/lon/alt near planets — updated ~1 Hz and held between updates | degraded-mode recipe |
+| Status.json `Gravity` (g, near planets) | `Environment.gravity` (×9.80665), re-sent with discovery on planet change; 0 in deep space (CONVENTIONS C-12) | direct |
 
 Everything else an Elite dashboard wants — pips, heat, shields, hull,
 cargo, FSD state, silent running, flight assist — is not in the offsets

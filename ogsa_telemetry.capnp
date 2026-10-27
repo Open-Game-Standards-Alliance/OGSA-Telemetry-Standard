@@ -83,8 +83,13 @@ struct Environment {
   airDensity @0 :Float32;   # kg/m^3
   temperature @1 :Float32;  # °C (declared exception, C-3)
   pressure @2 :Float32;     # Pa
-  gravity @3 :Float32;      # m/s^2
+  gravity @3 :Float32;      # m/s^2, magnitude; equals |gravityVector| when that is set
   medium @4 :ContactMedium; # dominant surrounding medium
+  union {
+    # Gravity direction (CONVENTIONS C-12).
+    noGravityVector @5 :Void;  # default: gravity acts along world -Y, magnitude `gravity`
+    gravityVector @6 :Vector3; # m/s^2, world frame, pointing the way gravity pulls
+  }
 }
 
 # ---------------------------------------------------------------------------
@@ -242,11 +247,21 @@ struct MotionObject {
 
   drivePoints @6 :List(DrivePoint);   # only points with state this tick
   channels @7 :List(ChannelValue);    # only channels that changed / are streamed
+
+  # Gravity at this object, when it differs from the environment's (planet
+  # surfaces, rotating habitats, multi-body scenes). A named union, since the
+  # struct's unnamed union carries the dynamics. Applies to this frame only:
+  # a sender using it carries it in every motion frame (CONVENTIONS C-12).
+  localGravity :union {
+    noLocalGravity @8 :Void;       # default: the environment gravity applies
+    vector @9 :Vector3;            # m/s^2, world frame, pointing the way gravity pulls
+  }
 }
 
 struct Kinematics {
   velocity @0 :Vector3;            # m/s, world space
-  acceleration @1 :Vector3;        # m/s^2, world space
+  acceleration @1 :Vector3;        # m/s^2, world space, coordinate acceleration
+                                   # (gravity excluded; CONVENTIONS C-12)
 }
 
 struct BodyDynamics {
@@ -254,7 +269,9 @@ struct BodyDynamics {
   # memory offsets) and the direct input of motion-cueing washout filters.
   # Body axes: OGSA-TS world frame rotated by orientation — x +right (sway),
   # y +up (heave), z +forward (surge).
-  specificForce @0 :Vector3;      # m/s^2, accelerometer-style (gravity reaction included)
+  specificForce @0 :Vector3;      # m/s^2, accelerometer-style: q^-1 * (a - g), the
+                                  # reaction to the object's effective gravity
+                                  # included (CONVENTIONS C-12)
   angularVelocity @1 :Vector3;    # rad/s: x +nose-up pitch, y +nose-right yaw, z +roll right-down
 }
 
