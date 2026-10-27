@@ -2,10 +2,10 @@
 """validate.py — decode every conformance vector and assert the
 manifest-declared semantics, independently of any reference SDK.
 
-Uses pycapnp (official capnproto bindings) against ogsa_telemetry.capnp:
+Uses pycapnp (official capnproto bindings) against ogs_telemetry.capnp:
 the schema and the corpus are validated by a third implementation, not
 by the code that generated them. Each vector is also checked for
-canonical OGSA encoding (implementation-capnproto.md § Encoding rules):
+canonical OGS encoding (implementation-capnproto.md § Encoding rules):
 a schema-free re-encoder written from the Cap'n Proto canonicalization
 rules must reproduce the payload exactly, and a schema-driven walk checks
 unused bits, discriminants and field presence. Exit 0 = all vectors
@@ -20,7 +20,7 @@ import sys
 import capnp  # pycapnp
 
 HERE = pathlib.Path(__file__).parent
-SCHEMA = HERE.parent / "ogsa_telemetry.capnp"
+SCHEMA = HERE.parent / "ogs_telemetry.capnp"
 MANIFEST = HERE / "manifest.json"
 
 PASS = FAIL = 0
@@ -187,7 +187,7 @@ def check_motion_local_gravity_zero(m):
 
 
 # ---------------------------------------------------------------------------
-# Canonical OGSA encoding (implementation-capnproto.md § Encoding rules)
+# Canonical OGS encoding (implementation-capnproto.md § Encoding rules)
 # ---------------------------------------------------------------------------
 
 MASK64 = (1 << 64) - 1

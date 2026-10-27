@@ -5,7 +5,7 @@
 - `ObjectDescriptor`: `type = aircraft`, 4 × `propeller` drive points
   (`PropellerSpec` from the model's prop geometry)
 - position/attitude/velocity → pose + kinematics (MAVLink's local NED frame
-  → OGSA-TS axis remap at sender)
+  → OGS-TS axis remap at sender)
 - per-motor rpm → `PropellerState.rpm` ×4
 - per-motor thrust (rarely measured in sims) → optional
   `PropellerExtended.thrust`; the `core` variant otherwise

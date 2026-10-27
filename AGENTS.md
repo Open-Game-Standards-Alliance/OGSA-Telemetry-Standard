@@ -1,4 +1,4 @@
-# AGENTS.md — OGSA-Telemetry-Standard
+# AGENTS.md — OGS-Telemetry-Standard
 
 Working conventions for agents editing this repo. The short version:
 **product docs describe what is; process (what was considered, what changed,
@@ -13,7 +13,7 @@ what got fixed) lives exclusively in the knowledge base.**
   "previously/now/added in", no adoption notes, no supersession references.
 - If a doc change would explain *why* something changed, state what the
   standard *is* in the doc and file the why in the sibling knowledge base
-  (`../Open-Game-Standards-Alliance-Knowledge`) as a span-cited claim — see
+  (`../Open-Game-Standards-Knowledge`) as a span-cited claim — see
   `knowledge/README.md` for the bridge and its `schema/AGENTS.md` for the KB
   contract.
 - Commit messages describe the change, not the deliberation.
@@ -21,13 +21,13 @@ what got fixed) lives exclusively in the knowledge base.**
 ## Schema rules
 - `conformance/` is the byte-level conformance corpus: golden datagrams +
   manifest, generated deterministically by
-  [ogsa-ts-dotnet](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-dotnet)
+  [ogs-ts-dotnet](https://github.com/Open-Game-Standards/ogs-ts-dotnet)
   `src/ConformanceGen`. Regenerate there; a non-empty diff without a
-  deliberate wire change is a bug. Every vector is in canonical OGSA
+  deliberate wire change is a bug. Every vector is in canonical OGS
   encoding (`implementation-capnproto.md` § Encoding rules);
   `conformance/validate.py` checks that independently of the generator.
 
-- `ogsa_telemetry.capnp` is the single source of truth. A JSON
+- `ogs_telemetry.capnp` is the single source of truth. A JSON
   mirror, if ever needed for tooling, must be *generated* from the capnp —
   never hand-maintained.
 - **Optionality rule**: optional measured quantities use a single unnamed

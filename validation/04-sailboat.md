@@ -8,7 +8,7 @@
 
 ## Core mapping
 
-| Game field | OGSA-TS destination | Class |
+| Game field | OGS-TS destination | Class |
 |---|---|---|
 | lat/lon | `position` (geodetic→local tangent at sender) | direct |
 | heading + heel + trim | `orientation` (Euler→quat; heel = roll) | direct |

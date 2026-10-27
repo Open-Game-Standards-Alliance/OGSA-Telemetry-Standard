@@ -1,12 +1,12 @@
 # Cap'n Proto Implementation
 
-The OGSA-TS uses [Cap'n Proto](https://capnproto.org/) as its data format. Cap'n Proto is a zero-copy, binary serialization format optimized for speed and efficiency, making it an excellent choice for sending motion telemetry data over UDP. It avoids encoding/decoding overhead by using a memory-aligned layout, and it supports optional fields, nested structures, and tagged unions efficiently.
+The OGS-TS uses [Cap'n Proto](https://capnproto.org/) as its data format. Cap'n Proto is a zero-copy, binary serialization format optimized for speed and efficiency, making it an excellent choice for sending motion telemetry data over UDP. It avoids encoding/decoding overhead by using a memory-aligned layout, and it supports optional fields, nested structures, and tagged unions efficiently.
 
 For the design behind the schema — the two frames and why metadata and samples are separated — see [DESIGN.md](DESIGN.md). This page covers working with the schema in practice.
 
 ## The schema
 
-The schema lives in [`ogsa_telemetry.capnp`](ogsa_telemetry.capnp) and defines two root messages:
+The schema lives in [`ogs_telemetry.capnp`](ogs_telemetry.capnp) and defines two root messages:
 
 - **`DiscoveryFrame`** — sent once per session and re-sent whenever anything it describes changes. Declares the game, session anchor, environment, and per object: drive-point descriptors (geometry, suspension) and channel descriptors (id, name, unit, range).
 - **`MotionFrame`** — sent at the telemetry rate (~60 Hz). Carries the pose core plus drive-point state and channel values, all keyed by the ids declared in discovery.
@@ -14,10 +14,10 @@ The schema lives in [`ogsa_telemetry.capnp`](ogsa_telemetry.capnp) and defines t
 Compile it for C++:
 
 ```bash
-capnp compile -oc++ ogsa_telemetry.capnp
+capnp compile -oc++ ogs_telemetry.capnp
 ```
 
-This generates `ogsa_telemetry.capnp.h` and `ogsa_telemetry.c++`.
+This generates `ogs_telemetry.capnp.h` and `ogs_telemetry.c++`.
 
 ## Message framing (normative)
 
@@ -26,9 +26,9 @@ a segment table followed by the segments. The table is a `u32` segment
 count minus one, then one `u32` word-size per segment, padded with zeros
 to an **even u32 count** (so a 1-segment table is exactly one word — 8
 bytes — with no additional padding). Messages are single-segment in
-practice; multi-segment is legal but unnecessary at OGSA-TS frame sizes.
+practice; multi-segment is legal but unnecessary at OGS-TS frame sizes.
 This is the standard Cap'n Proto stream framing: messages built by
-official capnp implementations (C++, Rust, Go, Python…) are valid OGSA-TS
+official capnp implementations (C++, Rust, Go, Python…) are valid OGS-TS
 payloads as-is.
 
 ## Encoding rules (normative)
@@ -46,7 +46,7 @@ default variant therefore has discriminant 0. `DrivePoint`,
 
 ### Senders MUST
 
-- **Emit valid Cap'n Proto** for `ogsa_telemetry.capnp`, framed as above.
+- **Emit valid Cap'n Proto** for `ogs_telemetry.capnp`, framed as above.
 - **Zero every unused bit.** Data bits that belong neither to a non-union
   field, nor to the union discriminant, nor to the selected variant are
   zero; pointer slots outside that layout are null. This covers struct
@@ -58,7 +58,7 @@ default variant therefore has discriminant 0. `DrivePoint`,
   optionality union leaves it zero-initialized, which selects the `Void`
   default — every official Cap'n Proto builder does this automatically.
 
-### Senders SHOULD: canonical OGSA encoding
+### Senders SHOULD: canonical OGS encoding
 
 Encode conformance (byte comparison with the corpus) requires these
 rules, and every reference encoder follows them.
@@ -116,7 +116,7 @@ f.setTimestamp(t);                    // seconds since session start
 MotionObject::Builder obj = f.initObjects(1)[0];
 obj.setName("player");
 obj.initPosition().setX(x); obj.getPosition().setY(y); obj.getPosition().setZ(z);
-auto q = obj.initOrientation();       // unit quaternion: OGSA-TS world -> object
+auto q = obj.initOrientation();       // unit quaternion: OGS-TS world -> object
 q.setX(0.0f); q.setY(0.0f); q.setZ(0.0f); q.setW(1.0f);  // identity
 // send as frame type 0x01
 ```
@@ -129,7 +129,7 @@ discovery and keyed by id, so they never complicate the motion tick.
 The discovery frame is where a game declares everything about its telemetry: what objects it streams, what drive points they have, and what channels exist. This example declares a racing-style player car with four wheels and three channels:
 
 ```cpp
-#include "ogsa_telemetry.capnp.h"
+#include "ogs_telemetry.capnp.h"
 #include <capnp/message.h>
 
 kj::Array<capnp::word> buildDiscovery() {
@@ -220,7 +220,7 @@ kj::Array<capnp::word> buildMotion(double timestampSeconds) {
 
     // Pose core — the required minimal set (left-handed, Z-forward, Y-up)
     car.initPosition().setX(1.5f);  // …setY/setZ similarly
-    auto q = car.initOrientation(); // unit quaternion, OGSA-TS world -> object axes
+    auto q = car.initOrientation(); // unit quaternion, OGS-TS world -> object axes
     q.setZ(0.0f); q.setW(1.0f);     // identity; …setX/setY for actual rotation
     // dynamics is optional — omit it and receivers derive velocity/
     // acceleration from pose deltas (send obj.initKinematics() for world
@@ -264,7 +264,7 @@ kj::Array<capnp::word> buildMotion(double timestampSeconds) {
 Deserialize with `FlatArrayMessageReader`. The frame type is identified by the transport envelope (a frame-type byte in the UDP header — see [implementation-udp.md](implementation-udp.md)), so a receiver knows which root type to expect:
 
 ```cpp
-#include "ogsa_telemetry.capnp.h"
+#include "ogs_telemetry.capnp.h"
 #include <capnp/serialize.h>
 
 void onDiscovery(kj::ArrayPtr<const capnp::word> words) {

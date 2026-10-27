@@ -28,7 +28,7 @@ but chose a **game's car-shaped format** as the carrier
 rpm/gear), so every non-car game (VTOL VR, Squadrons, IL-2, Overload's 6DoF
 ship, Cyberpunk via UEVR) is squeezed through a car's wire shape. That is
 the compatibility-fakery pattern from test 09, elevated to an
-architecture: OGSA-TS is the neutral carrier the ecosystem converged toward
+architecture: OGS-TS is the neutral carrier the ecosystem converged toward
 without designing.
 
 ## Finding: fwd/up precedent and the OpenMotion name
@@ -38,25 +38,25 @@ SpaceMonkey's internal frame (`SpaceMonkeyTelemetryFrameData` /
 rpm/gear/inputs`. Two consequences:
 
 - the forward/up orientation design exists in the wild, but alongside
-  mandatory car fields — the car-shaped-mandatory-core anti-pattern OGSA-TS
+  mandatory car fields — the car-shaped-mandatory-core anti-pattern OGS-TS
   avoids (optionality via union, not required engine fields); engine data
   rides channels. The quaternion decision stands (engine-native rotations
   are quaternions — Unity here; NoLimits2/RedOut in test 10; consumers are
   quaternion-native).
 - **naming collision**: an "OpenMotionAPI" already exists in this exact
-  domain. The OGSA-TS public name needs a distinctness check before v1.0.
+  domain. The OGS-TS public name needs a distinctness check before v1.0.
 
 ## Mapping
 
-| SpaceMonkey element | OGSA-TS destination | Class |
+| SpaceMonkey element | OGS-TS destination | Class |
 |---|---|---|
 | internal `pos` + `fwd/up` pair | `kinematics.position` + `orientation` (basis→quaternion recipe) | direct/recipe |
 | exporter-derived velocity | `kinematics.velocity` (already their method) | direct |
 | CM carrier `pitchDeg/yawDeg/rollDeg` | `orientation` (Euler→quat) | recipe |
 | CM carrier per-wheel suspension pos/vel | `WheelState.compression/velocity` ×4 | direct |
 | `rpm/gear/inputs` | `engine.rpm`, `gear`, `ctrl.*` channels | direct |
-| Kalman/median/high-pass/noise/smooth filters | consumer-side middleware — **not OGSA-TS's layer** (transport stays thin; filters are exactly the kind of consumer that reads OGSA-TS) | note |
-| MMF output alternative | OGSA-TS UDP multicast is the transport analog | note |
+| Kalman/median/high-pass/noise/smooth filters | consumer-side middleware — **not OGS-TS's layer** (transport stays thin; filters are exactly the kind of consumer that reads OGS-TS) | note |
+| MMF output alternative | OGS-TS UDP multicast is the transport analog | note |
 
 ## Verdict
 

@@ -1,4 +1,4 @@
-# Open Game Standards Alliance — OGSA Telemetry Standard, schema v1 (two-layer)
+# Open Game Standards — OGS Telemetry Standard, schema v1 (two-layer)
 #
 # Layers (see DESIGN.md):
 #   DiscoveryFrame — low rate: once per session, re-sent on change. Self-describing
@@ -28,7 +28,7 @@ struct Vector3 {
 
 struct Quaternion {
   # Unit quaternion (senders must normalize; receivers may renormalize
-  # defensively). Either sign represents the same rotation. Rotates OGSA-TS
+  # defensively). Either sign represents the same rotation. Rotates OGS-TS
   # world axes (left-handed, Z-forward, Y-up) into object body axes.
   x @0 :Float32;
   y @1 :Float32;
@@ -141,7 +141,7 @@ struct NamedPoint {
   # as the orientation quaternion). Reference points let consumers correct
   # received motion to their own pivot/head position (lever-arm corrections):
   #   a_seat = a_ref + alpha x r + omega x (omega x r),   r = seat - referencePoint
-  # OGSA-TS transports the declared reference and named points; the correction
+  # OGS-TS transports the declared reference and named points; the correction
   # itself is consumer-side. Conventional names: "cg", "pilot", "driverEye".
   name @0 :Text;
   position @1 :Vector3;
@@ -229,11 +229,11 @@ struct MotionFrame {
 struct MotionObject {
   name @0 :Text;                   # matches ObjectDescriptor.name
 
-  # Core pose — the OGSA-TS minimal set.
+  # Core pose — the OGS-TS minimal set.
   position @1 :Vector3;            # world position of the object's referencePoint
                                    # (object-local frame origin by default), meters,
                                    # left-handed, Z-forward, Y-up
-  orientation @2 :Quaternion;      # unit quaternion: OGSA-TS world -> object axes
+  orientation @2 :Quaternion;      # unit quaternion: OGS-TS world -> object axes
 
   # Dynamics — optional; exactly one representation, whichever the sender
   # measures natively. Receivers convert between them using orientation.
@@ -267,7 +267,7 @@ struct Kinematics {
 struct BodyDynamics {
   # Native representation of accelerometer-class sources (e.g. community
   # memory offsets) and the direct input of motion-cueing washout filters.
-  # Body axes: OGSA-TS world frame rotated by orientation — x +right (sway),
+  # Body axes: OGS-TS world frame rotated by orientation — x +right (sway),
   # y +up (heave), z +forward (surge).
   specificForce @0 :Vector3;      # m/s^2, accelerometer-style: q^-1 * (a - g), the
                                   # reaction to the object's effective gravity

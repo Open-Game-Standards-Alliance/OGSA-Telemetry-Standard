@@ -1,4 +1,4 @@
-# OGSA-TS Conventions (normative)
+# OGS-TS Conventions (normative)
 
 One closed set of conventions for every value on the wire. Schema field
 comments, `CHANNELS.md` families, and per-game references cite these clauses

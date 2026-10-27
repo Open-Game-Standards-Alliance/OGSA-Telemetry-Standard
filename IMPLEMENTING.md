@@ -1,4 +1,4 @@
-# Implementing OGSA-TS
+# Implementing OGS-TS
 
 The single path from zero to a conformant sender or receiver — for any
 language, any engine (including your own). Everything normative lives in
@@ -11,7 +11,7 @@ this repo; the reference implementations and engine plugins are siblings.
    policy, signs, timestamps. **Read before writing any value.** The
    world frame is left-handed, +Z forward, +Y up, metres; rotations are
    radians; channel units are SI plus a closed whitelist
-3. [ogsa_telemetry.capnp](ogsa_telemetry.capnp) — the schema (single
+3. [ogs_telemetry.capnp](ogs_telemetry.capnp) — the schema (single
    source of truth). It is self-contained: feed it to any Cap'n Proto
    toolchain
 4. [implementation-udp.md](implementation-udp.md) — the 8-byte `OMT1`
@@ -115,7 +115,7 @@ Readings outside the set convert inside the getter; an unknown pair
 fails the bind rather than guessing a factor onto the wire.
 Implementations that extend the set keep it identical across engines —
 the reference suites verify it (dotnet conversion tests; UE
-`OgsaConversionTestActor` on the wire; Godot `ConformanceCheck`).
+`OgsConversionTestActor` on the wire; Godot `ConformanceCheck`).
 
 ### Native angular velocity (component sense)
 
@@ -143,7 +143,7 @@ plus a semantic manifest. Two checks, either or both:
 
 - **Decode**: parse each `.hex` and compare against the manifest — proves
   your reader
-- **Encode**: build each manifest input in canonical OGSA encoding and
+- **Encode**: build each manifest input in canonical OGS encoding and
   byte-compare with the `.hex` — proves your writer
 
 All corpus floats are float32-exact, so comparisons need no epsilon.
@@ -154,11 +154,11 @@ text: the 8-byte envelope is 16 hex characters, so strip from character
 
 ```bash
 tail -c +17 conformance/vectors/motion-pose.hex | xxd -r -p \
-  | capnp decode ogsa_telemetry.capnp MotionFrame
+  | capnp decode ogs_telemetry.capnp MotionFrame
 ```
 
 (No `capnp` CLI handy? The same check in Python: `pip install pycapnp`,
-then `capnp.load("ogsa_telemetry.capnp").MotionFrame.from_bytes(
+then `capnp.load("ogs_telemetry.capnp").MotionFrame.from_bytes(
 bytes.fromhex(open("conformance/vectors/motion-pose.hex").read().strip()[16:]))`
 — use it as a context manager.)
 
@@ -166,10 +166,10 @@ bytes.fromhex(open("conformance/vectors/motion-pose.hex").read().strip()[16:]))`
 
 | Situation | Start from |
 |---|---|
-| **Custom .NET engine** (MonoGame, Stride, FNA, bespoke) | [`ogsa-ts-dotnet`](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-dotnet) — `Ogsa.Telemetry` is engine-agnostic by design; the Unity and Godot plugins are thin wrappers over it |
-| **Custom C++ engine** | [`ogsa-ts-unreal/Source/OgsaTelemetryCore`](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-unreal) — std-only, zero dependencies, byte-exact against the corpus; vendor it and add your socket + glue |
-| **Any other language** | The schema + this page + any official capnp implementation (C++, Rust, Go, Python, Java, JS…) — its messages are valid OGSA-TS payloads as-is; canonicalize them to byte-match the corpus |
-| **Unity / Unreal / Godot** | The engine plugins ([ogsa-ts-unity](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-unity), [ogsa-ts-unreal](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-unreal), [ogsa-ts-godot](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-godot)) — wired and validated |
+| **Custom .NET engine** (MonoGame, Stride, FNA, bespoke) | [`ogs-ts-dotnet`](https://github.com/Open-Game-Standards/ogs-ts-dotnet) — `Ogs.Telemetry` is engine-agnostic by design; the Unity and Godot plugins are thin wrappers over it |
+| **Custom C++ engine** | [`ogs-ts-unreal/Source/OgsTelemetryCore`](https://github.com/Open-Game-Standards/ogs-ts-unreal) — std-only, zero dependencies, byte-exact against the corpus; vendor it and add your socket + glue |
+| **Any other language** | The schema + this page + any official capnp implementation (C++, Rust, Go, Python, Java, JS…) — its messages are valid OGS-TS payloads as-is; canonicalize them to byte-match the corpus |
+| **Unity / Unreal / Godot** | The engine plugins ([ogs-ts-unity](https://github.com/Open-Game-Standards/ogs-ts-unity), [ogs-ts-unreal](https://github.com/Open-Game-Standards/ogs-ts-unreal), [ogs-ts-godot](https://github.com/Open-Game-Standards/ogs-ts-godot)) — wired and validated |
 
 Reference receiver for testing your sender:
-[`ogsa-ts-dotnet`](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-dotnet) → `dotnet run --project src/TelemetryReceive`.
+[`ogs-ts-dotnet`](https://github.com/Open-Game-Standards/ogs-ts-dotnet) → `dotnet run --project src/TelemetryReceive`.

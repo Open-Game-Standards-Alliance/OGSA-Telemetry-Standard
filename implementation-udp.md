@@ -1,6 +1,6 @@
 # UDP Implementation
 
-The OGSA-TS transport is **plain UDP multicast**. At 60–120 Hz with sub-500-byte packets on a LAN or localhost, transport latency is a few hundred microseconds at most — negligible next to the game physics tick, motion cueing filters, and actuator response. A high-performance messaging layer would add a media driver process and client library to every integration for performance this use case cannot use. Plain UDP is trivial to ship in engine plugins and supports multicast, so multiple clients (dashboards, motion rigs, haptics, loggers) receive the same stream without extra ports or proxying.
+The OGS-TS transport is **plain UDP multicast**. At 60–120 Hz with sub-500-byte packets on a LAN or localhost, transport latency is a few hundred microseconds at most — negligible next to the game physics tick, motion cueing filters, and actuator response. A high-performance messaging layer would add a media driver process and client library to every integration for performance this use case cannot use. Plain UDP is trivial to ship in engine plugins and supports multicast, so multiple clients (dashboards, motion rigs, haptics, loggers) receive the same stream without extra ports or proxying.
 
 Cap'n Proto handles serialization (see [implementation-capnproto.md](implementation-capnproto.md)).
 
@@ -56,7 +56,7 @@ The 2-second discovery re-send bounds late-joiner wait time at ~1.6 kbit/s of ex
 ## Sender (game side)
 
 ```cpp
-#include "ogsa_telemetry.capnp.h"
+#include "ogs_telemetry.capnp.h"
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 #include <sys/socket.h>
@@ -128,7 +128,7 @@ int main() {
 ## Receiver (motion software side)
 
 ```cpp
-#include "ogsa_telemetry.capnp.h"
+#include "ogs_telemetry.capnp.h"
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 #include <sys/socket.h>

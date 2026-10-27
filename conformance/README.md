@@ -1,13 +1,13 @@
 # Conformance corpus
 
-Golden OGSA-TS datagrams + a semantic manifest, generated deterministically
+Golden OGS-TS datagrams + a semantic manifest, generated deterministically
 by the reference implementation
-([`ogsa-ts-dotnet`](https://github.com/Open-Game-Standards-Alliance/ogsa-ts-dotnet),
+([`ogs-ts-dotnet`](https://github.com/Open-Game-Standards/ogs-ts-dotnet),
 `src/ConformanceGen`).
 Every engine implementation (Unity, Godot, UE, …) validates against this
 corpus so their encoders provably agree on the wire.
 
-Every vector is in **canonical OGSA encoding**
+Every vector is in **canonical OGS encoding**
 ([implementation-capnproto.md § Encoding rules](../implementation-capnproto.md#encoding-rules-normative)):
 Cap'n Proto canonical form, zeroed unused bits, declared discriminants,
 and fixed field presence. The bytes are therefore a function of the
@@ -48,23 +48,23 @@ exactly, no epsilon.
 
 - **Decode direction (receivers)**: parse each `.hex`, decode, compare
   against the manifest `input`. Guarded continuously by
-  `Ogsa.Telemetry.Tests.ConformanceVectorTests`.
+  `Ogs.Telemetry.Tests.ConformanceVectorTests`.
 - **Encode direction (senders)**: build each frame from the manifest
-  `input` in canonical OGSA encoding and byte-compare with the `.hex`
+  `input` in canonical OGS encoding and byte-compare with the `.hex`
   file.
 - **Corpus self-check**: `python conformance/validate.py` (pycapnp)
   decodes every vector, verifies it equals its manifest input exactly
-  and is in canonical OGSA encoding, independently of the generator.
+  and is in canonical OGS encoding, independently of the generator.
 
 ## Regeneration
 
 ```bash
-cd ogsa-ts-dotnet
+cd ogs-ts-dotnet
 dotnet run --project src/ConformanceGen [outputDir]
 ```
 
 Regeneration is **deterministic**: with unchanged schema and manifest,
-`git diff` after regenerating must be empty — canonical OGSA encoding
+`git diff` after regenerating must be empty — canonical OGS encoding
 leaves the encoder no freedom. If bytes change, the change
 is a wire-format change — review it as such, then regenerate as part of
 that change. Schema evolution rules (unknown-field skipping) mean additions

@@ -8,7 +8,7 @@
 
 ## Core mapping
 
-| Game field | OGSA-TS destination | Class |
+| Game field | OGS-TS destination | Class |
 |---|---|---|
 | position / attitude | `position` + `orientation` (lean = roll, fully in quaternion) | direct |
 | velocity / acceleration | `kinematics` | direct |

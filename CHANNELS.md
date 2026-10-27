@@ -1,6 +1,6 @@
 # Common Channels Annex
 
-Status: informative annex to the OGSA-TS v1 schema. Channel names are *data*
+Status: informative annex to the OGS-TS v1 schema. Channel names are *data*
 carried in `ChannelDescriptor` — this annex has no schema or wire-format
 impact. It ratifies well-known channel names **with required units** so
 receivers can auto-map telemetry across games without per-game
@@ -62,7 +62,7 @@ These families are annex candidates once naming stabilizes across ≥2 games
 1. The concept must exist in at least **two shipping games** (or clear
    equivalents across domains — e.g. `engine.rpm` for a car and a boat's
    propeller shaft).
-2. Additions are pull requests to this file; OGSA reviews for name quality
+2. Additions are pull requests to this file; OGS reviews for name quality
    (lowercase, dotted hierarchy), unit sanity, and non-overlap.
 3. Entries are never renamed or re-united — corrections supersede by adding
    a new name and noting the deprecation inline.
