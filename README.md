@@ -9,7 +9,7 @@ The OGS Telemetry Standard (OGS-TS) defines a standardised method and
 format for games and simulators to broadcast live telemetry to devices and
 software on the user's local area network (LAN).
 
-Community & support: [Discord](https://discord.gg/tseF4Q6U99)
+Community & support: [Discord](https://discord.gg/tseF4Q6U99) · Development is funded by [sponsorship](https://github.com/sponsors/BrianGilbert)
 
 Any number of receivers on the LAN can consume the same stream at once:
 motion platforms, haptic vests and transducers, physical cockpit hardware,
