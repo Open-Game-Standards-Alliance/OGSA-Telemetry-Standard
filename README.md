@@ -87,6 +87,13 @@ Wired and validated engine plugins, maintained as sibling repos:
 - [ogs-ts-unreal](https://github.com/Open-Game-Standards/ogs-ts-unreal)
 - [ogs-ts-godot](https://github.com/Open-Game-Standards/ogs-ts-godot)
 
+### Tools
+
+- [OGS-TS Monitor](https://github.com/Open-Game-Standards/ogs-ts-monitor) —
+  desktop receiver for Windows, Linux and macOS: shows every sender on the
+  network (objects, channels, attitude, track, events) and checks each frame
+  against this standard, listing anything non-conformant by rule
+
 ### Conventions
 
 Frames, quaternion policy, units (SI plus a closed whitelist), rotation

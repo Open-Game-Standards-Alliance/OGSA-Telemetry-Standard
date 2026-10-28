@@ -171,5 +171,8 @@ bytes.fromhex(open("conformance/vectors/motion-pose.hex").read().strip()[16:]))`
 | **Any other language** | The schema + this page + any official capnp implementation (C++, Rust, Go, Python, Java, JS…) — its messages are valid OGS-TS payloads as-is; canonicalize them to byte-match the corpus |
 | **Unity / Unreal / Godot** | The engine plugins ([ogs-ts-unity](https://github.com/Open-Game-Standards/ogs-ts-unity), [ogs-ts-unreal](https://github.com/Open-Game-Standards/ogs-ts-unreal), [ogs-ts-godot](https://github.com/Open-Game-Standards/ogs-ts-godot)) — wired and validated |
 
-Reference receiver for testing your sender:
+Testing your sender: the [OGS-TS Monitor](https://github.com/Open-Game-Standards/ogs-ts-monitor)
+(Windows, Linux, macOS) shows what it sends and checks every frame against
+this standard, listing anything non-conformant by rule. From a terminal, the
+reference receiver prints the stream with its core checks:
 [`ogs-ts-dotnet`](https://github.com/Open-Game-Standards/ogs-ts-dotnet) → `dotnet run --project src/TelemetryReceive`.
