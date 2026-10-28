@@ -47,12 +47,20 @@ current value in `ObjectDescriptor.values` (discovery, re-sent on change).
 | `air.verticalSpeed` (m/s) | `VERTICAL_SPEED` (fpm) |
 | `air.alpha` / `air.beta` (rad) | `ANGLE OF ATTACK` / `SIDESLIP` |
 | `air.alphaX/Y/Z` (rad/s²) | `ROTATION_ACCELERATION_BODY_X/Y/Z` — lever-arm α for consumer corrections |
+| `air.turnBall` (−1..1) | `TURN COORDINATOR BALL` (position) — + = ball right of centre, as MSFS reports; the slip/skid cue motion profiles use for tilt coordination |
+| `air.variometer` (m/s) | `VARIOMETER RATE` |
+| `air.loadFactor` | `G FORCE` — 1 in level flight |
+| `air.relativeWind.x/y/z` (m/s) | `RELATIVE WIND VELOCITY BODY X/Y/Z` — airflow relative to the aircraft, body axes |
+| `velocity.body.x/y/z` (m/s) | `VELOCITY BODY X/Y/Z` |
+| `nav.headingMagnetic` / `nav.headingGyro` (rad) | `PLANE HEADING DEGREES MAGNETIC/GYRO` (the gyro may drift) |
+| `mass.yawInertia` (kg·m²) | `TOTAL WEIGHT YAW MOI` (slug·ft² ×1.35582) |
 
 ### Wind / ambient (session, or stream when dynamic weather)
 | Channel | SimVar | Notes |
 |---|---|---|
 | `wind.speed` (m/s), `wind.direction` (rad), `wind.x/y/z` | `AMBIENT WIND VELOCITY/DIRECTION/X/Y/Z` | direction is the **from** convention (CONVENTIONS C-7); MSFS reports degrees → ×π/180; vector components point toward |
 | `env.visibility` (m), `env.precipRate`, `env.inCloud` (bool) | `AMBIENT VISIBILITY/PRECIP RATE/IN CLOUD` |
+| `wind.body.x/y/z` (m/s) | `AIRCRAFT WIND X/Y/Z` | ambient wind in body axes |
 
 ### Controls (stream)
 | Channel | SimVar |
@@ -62,6 +70,7 @@ current value in `ObjectDescriptor.values` (discovery, re-sent on change).
 | `ctrl.trim.*` | `ELEVATOR/AILERON/RUDDER TRIM` |
 | `ctrl.flaps` / `ctrl.spoilers` (0..1) | `FLAPS INDEX`→norm / `SPOILERS POSITION` |
 | `gear.position` (0..1), `gear.damageBySpeed` | `GEAR_ANIMATION_POSITION`, `GEAR DAMAGE BY SPEED` |
+| `gear.contact[1..6].compression` (0..1), `gear.contact[1..6].onGround` (bool) | `CONTACT POINT COMPRESSION:0..5`, `CONTACT POINT IS ON GROUND:0..5` |
 
 ### Engines / fuel (stream; per-engine instances use index-suffixed channels, e.g. `engine[1].n1`)
 | Channel | SimVar |
@@ -69,6 +78,7 @@ current value in `ObjectDescriptor.values` (discovery, re-sent on change).
 | `engine.n1` / `engine.n2` (0..1) | `ENG N1 RPM` / `ENG N2 RPM` (%) |
 | `engine.rpm`, `engine.itt` (°C), `engine.oilTemp/Pressure` | `GENERAL ENG RPM`, `TURB ENG ITT`, `ENG OIL…` |
 | `engine.fuelFlow` (kg/s) | `ENG FUEL FLOW PPH` |
+| `engine[n].vibration`, `engine[n].rotorRpm` (fraction of nominal) | `ENG VIBRATION:n`, `ENG ROTOR RPM:n` (%) |
 | `fuel.quantity` (kg), `fuel.selectedKg` | `FUEL TOTAL QUANTITY`, `FUEL SELECTED QUANTITY` |
 
 ### Electrics / hydraulics (session or slow stream)
