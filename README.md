@@ -173,6 +173,9 @@ The OGS-TS defines common methodologies and protocols for transmitting a wide ra
 
     - Motion Simulation
     - Haptics and Feedback
+    - Environmental effects (wind, lighting)
+    - Dashboards, instruments and second screens
+    - Accessibility (alternative cues for audio and visual information)
     - Performance logging, tracking and reporting tools
 
 ### Data Formatting
@@ -220,6 +223,30 @@ The OGS-TS does not dictate or influence the business models, pricing strategies
 
 3. User plays game on PC or Console, a software client is able to log performance metrics over multiple sessions and provides a user friendly interface showing user performance and progression over time.
 
+4. User plays a game on a standalone VR headset. The headset sends telemetry over the home network to a motion seat, haptic vest or wind fans, with no PC involved. A headset can also run receiver apps: a VR or passthrough overlay showing live instruments from a sim running on a PC or console, for example.
+
+5. A hardware device implements a native OGS-TS receiver, removing the need for external control software or a PC: motion platforms, haptic devices, wind fans, bass shakers with built-in signal processing, LED shift lights, gauge clusters, steering wheels with displays. The device learns each game's channels from discovery, so one implementation works with every OGS-TS game.
+
+6. User plays on a handheld PC, or streams a game from a PC in another room to the TV. The game sends telemetry to the network, and a different device on the network drives the rig, so the handheld or the streaming client does none of that work.
+
+7. A deaf or hard-of-hearing player receives footsteps, gunfire and impacts as haptic or visual cues, including the direction they came from (`EventFrame` carries an optional body-frame direction). Speed, heading and proximity can likewise be given as audio or haptic cues for players with low vision.
+
+8. Room lighting and home automation (WLED, Philips Hue, Home Assistant) react to the game: flash on damage, colour by engine RPM, dim at the start of a race, brighten on pause.
+
+9. A phone or tablet shows a dashboard, map or engine data as a second screen, keeping the main display clear.
+
+10. A streamer's second PC builds live overlays (inputs, g-forces, track map) and drives stream-deck lighting from telemetry, with nothing extra running on the gaming PC.
+
+11. One game drives several rigs, displays or haptic devices at once: a home cockpit with a co-pilot station, or a venue running several motion seats. Every receiver joins the same multicast group with no per-receiver setup.
+
+12. A game sends road gradient and surface type, and a bridge sets the resistance of a smart bike trainer or other exercise equipment. The game only sends; the trainer is a receiver like any other.
+
+13. A developer or hardware maker records a session once and replays it into rigs and haptics to tune motion profiles or test a device, without running the game.
+
+14. A researcher or teacher logs driver inputs and vehicle motion alongside eye trackers or biometric sensors, lined up using the frame timestamps.
+
+Scenarios that put a sender or receiver on Wi-Fi depend on the wireless network passing multicast traffic well; see [Wireless networks](implementation-udp.md#wireless-networks).
+
 ## Decision Points and Trade-offs
 
-With the need to support console devices any implementation method that only works with telemetry client software, or hardware directly running or connected to the device executing the game will not be entertained.
+With the need to support console devices and standalone VR headsets, any implementation method that only works with telemetry client software, or hardware directly running or connected to the device executing the game, will not be entertained.

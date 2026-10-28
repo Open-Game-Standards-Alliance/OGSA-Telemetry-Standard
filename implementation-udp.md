@@ -44,6 +44,17 @@ liveness signal.
 
 All values are defaults — every implementation should make endpoint and mode configurable.
 
+## Wireless networks
+
+OGS-TS works over Wi-Fi, so standalone VR headsets, handhelds and battery-powered devices can send or receive it. Wi-Fi handles multicast less well than a wired network, and these points apply:
+
+- **Wired where possible.** Access points typically send multicast at the lowest basic data rate and without retransmission, so loss and airtime cost are higher than for unicast. Keep at least the receiver wired when it can be.
+- **Access point settings.** Client isolation (common on guest networks) blocks traffic between devices entirely. IGMP snooping without a querier can stop multicast reaching receivers after a few minutes. Some access points offer multicast-to-unicast conversion, which improves reliability.
+- **Android-based devices** (including standalone VR headsets) drop incoming multicast unless the app holds a `WifiManager.MulticastLock`, and need the `CHANGE_WIFI_MULTICAST_STATE` permission to take it. Senders need the `INTERNET` permission.
+- **Power saving** on battery devices can delay multicast delivery; receivers that need consistent timing should disable Wi-Fi power saving while active.
+
+Event replay (CONVENTIONS C-10) and receiver interpolation already absorb occasional loss; these points keep loss occasional.
+
 ## Send cadence
 
 | Frame | When to send |
